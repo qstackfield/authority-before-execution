@@ -125,7 +125,7 @@ It is designed to showcase:
 
 ## Status
 
-**In active development**
+**Status:** Onboarding complete. Build begins with hackathon start.
 
 Current focus:
 - defining the execution boundary
