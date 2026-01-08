@@ -11,7 +11,7 @@ The system enforces a single invariant:
 
 > **If explicit authority is not present at execution time, the next state does not exist.**
 
-Agents are allowed to reason, plan, and propose actions — but they are **not allowed to commit state changes** unless authority is explicitly bound at the moment of execution.
+Agents are allowed to reason, plan, and propose actions - but they are **not allowed to commit state changes** unless authority is explicitly bound at the moment of execution.
 
 This project demonstrates how separating **proposal** from **execution**, combined with continuous evaluation and observability, prevents responsibility drift in agentic systems and makes autonomy measurable instead of anecdotal.
 
