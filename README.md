@@ -77,15 +77,18 @@ Clarity beats scale for this demonstration.
 ---
 
 ## Architecture (High Level)
+
+<pre>
 User Task
-↓
+   ↓
 Agent (Reasoning + Proposal)
-↓
+   ↓
 Evaluation + Trace (Opik)
-↓
+   ↓
 Approval Gate
-├─ Approved → Execute → Outcome Traced
-└─ Denied   → Block   → Denial Traced
+   ├─ Approved → Execute → Outcome Traced
+   └─ Denied   → Block   → Denial Traced
+</pre>
 
 Execution is impossible without a valid approval artifact at the moment of commit.
 
@@ -122,7 +125,7 @@ It is designed to showcase:
 
 ## Status
 
-🚧 **In active development**
+**In active development**
 
 Current focus:
 - defining the execution boundary
