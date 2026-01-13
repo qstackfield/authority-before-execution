@@ -1,15 +1,19 @@
 """
 authority_gate.py
 
-Execution enforcement for authority-bound decisions.
+Enforces a single invariant:
 
-No action may execute unless explicit authority
-is present, valid, unexpired, and scoped for
-the action being performed.
+    No action may execute unless explicit authority
+    is present, valid, and in scope at execution time.
 """
 
-from datetime import datetime
-from typing import Dict, List
+from __future__ import annotations
+
+from dataclasses import asdict
+from datetime import datetime, timezone
+from typing import Iterable
+
+from core.decision import Authority, Decision
 
 
 class AuthorityMissing(Exception):
@@ -24,44 +28,61 @@ class AuthorityScopeViolation(Exception):
     pass
 
 
-def enforce_authority(decision: Dict) -> Dict:
+def _utcnow() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+def _scope_allows_action(scope: Iterable[str] | None, action: str) -> bool:
     """
-    Enforce authority-before-execution.
+    Returns True if the authority scope allows the action.
 
-    Authority must:
-    - exist
-    - include an expiry
-    - be unexpired at execution time
-    - explicitly authorize the requested action
+    Scope semantics:
+      - None      → no restriction (explicitly allowed)
+      - iterable  → action must be present
     """
+    if scope is None:
+        return True
 
-    authority = decision.get("authority")
+    return action in scope
 
-    if not authority:
+
+def enforce_authority(decision: Decision) -> None:
+    """
+    Fail-closed authority enforcement.
+
+    Raises a specific exception for each deny condition.
+    """
+    authority: Authority | None = decision.authority
+    if authority is None:
         raise AuthorityMissing("Execution blocked: authority not bound")
 
-    expires_at = authority.get("expires_at")
-    scope: List[str] = authority.get("scope", [])
+    if not authority.approved_by:
+        raise AuthorityMissing("Execution blocked: authority missing approver")
 
-    if not expires_at:
-        raise AuthorityMissing("Execution blocked: authority missing expiry")
+    if not authority.reason:
+        raise AuthorityMissing("Execution blocked: authority missing justification")
 
-    now = datetime.utcnow()
-    expiry = datetime.fromisoformat(expires_at)
-
-    if now > expiry:
+    now = _utcnow()
+    if authority.is_expired(now):
         raise AuthorityExpired("Execution blocked: authority expired")
 
-    action = decision.get("action")
+    action = decision.proposal.action
+    if not _scope_allows_action(authority.scope, action):
+        raise AuthorityScopeViolation("Execution blocked: authority out of scope")
 
-    if action not in scope:
-        raise AuthorityScopeViolation(
-            f"Execution blocked: authority does not permit action '{action}'"
-        )
 
-    # Execution permitted
-    return {
-        "status": "executed",
-        "action": action,
-        "params": decision.get("params"),
-    }
+def decision_snapshot(decision: Decision) -> dict:
+    """
+    Stable, serializable snapshot for tracing and evaluation layers.
+
+    Keeps the execution core strongly typed while allowing
+    logging as a plain dictionary.
+    """
+    d = asdict(decision)
+
+    d["created_at"] = decision.created_at.isoformat()
+
+    if decision.authority and decision.authority.expires_at:
+        d["authority"]["expires_at"] = decision.authority.expires_at.isoformat()
+
+    return d
