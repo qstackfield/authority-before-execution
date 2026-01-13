@@ -45,3 +45,18 @@ This demonstrates that authority-before-execution is:
 
 This is governance at the execution boundary,
 not post-hoc review.
+
+### Artifact Provenance
+
+The JSON files in this directory are snapshots of real execution results
+produced by this demo.
+
+They are included to make execution behavior inspectable without requiring
+judges to run the code.
+
+- `sample_decision.json` shows the canonical decision input.
+- `sample_execution_result.json` shows the structured result returned by
+  `executor.execute()` for an authority-approved execution.
+
+These artifacts reflect actual runtime behavior and are not hard-coded
+inputs to the system.
