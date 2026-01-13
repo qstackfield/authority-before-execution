@@ -9,8 +9,8 @@ def main():
         "action": "deploy_model",
         "params": {
             "model": "gpt-4.1",
-            "environment": "production"
-        }
+            "environment": "production",
+        },
     }
 
     print("\n=== Attempt 1: No authority bound ===\n")
@@ -26,7 +26,8 @@ def main():
         decision,
         approved_by="security-lead@company.com",
         reason="Change approved under incident protocol IR-2026-014",
-        ttl_seconds=2
+        scope=["deploy_model"],
+        ttl_seconds=5,
     )
 
     print("=== Attempt 2: Authority present ===\n")
@@ -38,7 +39,7 @@ def main():
         print("UNEXPECTED BLOCK →", e)
 
     print("\n=== Waiting for authority to expire ===\n")
-    time.sleep(3)
+    time.sleep(6)
 
     print("=== Attempt 3: Authority expired ===\n")
 
