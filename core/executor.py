@@ -2,9 +2,8 @@
 executor.py
 
 Execution boundary for authority-gated actions.
-
 This is the only place where state change is allowed.
-All executions are traced.
+All execution outcomes are traced.
 """
 
 from opik import track, configure
@@ -14,7 +13,6 @@ from core.authority_gate import (
     AuthorityExpired,
 )
 
-# Initialize Opik using existing config / env vars
 configure()
 
 
@@ -26,15 +24,30 @@ configure()
 def execute(decision: dict) -> dict:
     """
     Execute a decision only if authority is valid at runtime.
-
-    All authority enforcement happens here.
-    Outcome is reflected in trace + return value.
     """
 
-    enforce_authority(decision)
+    try:
+        enforce_authority(decision)
 
-    return {
-        "status": "executed",
-        "action": decision.get("action"),
-        "params": decision.get("params"),
-    }
+        return {
+            "status": "executed",
+            "action": decision.get("action"),
+            "params": decision.get("params"),
+            "execution_allowed": True,
+        }
+
+    except AuthorityMissing as e:
+        return {
+            "status": "blocked",
+            "reason": "missing_authority",
+            "message": str(e),
+            "execution_allowed": False,
+        }
+
+    except AuthorityExpired as e:
+        return {
+            "status": "blocked",
+            "reason": "expired_authority",
+            "message": str(e),
+            "execution_allowed": False,
+        }
