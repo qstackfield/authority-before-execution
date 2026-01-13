@@ -1,6 +1,10 @@
 from core.authority_bindings import bind_authority
 from core.executor import execute
-from core.authority_gate import AuthorityMissing, AuthorityExpired
+from core.authority_gate import (
+    AuthorityMissing,
+    AuthorityExpired,
+    AuthorityScopeViolation,
+)
 import time
 
 
@@ -9,46 +13,58 @@ def main():
         "action": "deploy_model",
         "params": {
             "model": "gpt-4.1",
-            "environment": "production",
-        },
+            "environment": "production"
+        }
     }
 
-    print("\n=== Attempt 1: No authority bound ===\n")
+    print("\nAttempting execution without authority.\n")
 
     try:
         execute(decision)
     except AuthorityMissing as e:
-        print(f"BLOCKED → {e}")
+        print(e)
 
-    print("\n=== Binding authority (short-lived) ===\n")
+    print("\nBinding short-lived authority scoped to this action.\n")
 
     authorized_decision = bind_authority(
         decision,
         approved_by="security-lead@company.com",
-        reason="Change approved under incident protocol IR-2026-014",
+        reason="Approved under incident protocol IR-2026-014",
         scope=["deploy_model"],
         ttl_seconds=5,
     )
 
-    print("=== Attempt 2: Authority present ===\n")
+    print("Attempting execution with valid authority.\n")
 
     try:
         result = execute(authorized_decision)
-        print("EXECUTED →", result)
+        print("Execution permitted.")
+        print(result)
     except Exception as e:
-        print("UNEXPECTED BLOCK →", e)
+        print("Execution blocked unexpectedly:", e)
 
-    print("\n=== Waiting for authority to expire ===\n")
-    time.sleep(6)
+    print("\nAttempting execution with authority that does not cover the action.\n")
 
-    print("=== Attempt 3: Authority expired ===\n")
+    unauthorized_action = {
+        "action": "delete_model",
+        "params": {"model": "gpt-4.1"},
+        "authority": authorized_decision["authority"],
+    }
+
+    try:
+        execute(unauthorized_action)
+    except AuthorityScopeViolation as e:
+        print(e)
+
+    print("\nWaiting for authority to expire.\n")
+    time.sleep(5)
+
+    print("Attempting execution after authority expiration.\n")
 
     try:
         execute(authorized_decision)
     except AuthorityExpired as e:
-        print(f"BLOCKED → {e}")
-    except AuthorityMissing as e:
-        print(f"BLOCKED → {e}")
+        print(e)
 
 
 if __name__ == "__main__":
