@@ -1,40 +1,51 @@
 """
 authority_gate.py
 
-This module enforces a single invariant:
+Execution enforcement for authority-bound decisions.
 
-    No action may execute unless explicit authority
-    has been bound to the decision at runtime.
-
-This is intentionally minimal. Authority is not inferred,
-scored, or guessed. It must be present.
+No action may execute unless explicit authority
+is present and valid at runtime.
 """
+
+from datetime import datetime
+from typing import Dict
+
 
 class AuthorityMissing(Exception):
     pass
 
 
-def enforce_authority(decision: dict) -> None:
-    """
-    Enforce that a decision carries explicit authority.
+class AuthorityExpired(Exception):
+    pass
 
-    Expected decision shape:
-        {
-            "action": str,
-            "params": dict,
-            "authority": {
-                "approved_by": str,
-                "reason": str
-            }
-        }
+
+def enforce_authority(decision: Dict) -> Dict:
     """
+    Enforce authority-before-execution.
+
+    If authority is missing or expired at execution time,
+    execution must fail closed.
+    """
+
     authority = decision.get("authority")
 
-    if authority is None:
-        raise AuthorityMissing("Execution blocked: authority not bound")
+    if not authority:
+        raise AuthorityMissing("BLOCKED: Execution blocked: authority not bound")
 
-    if not authority.get("approved_by"):
-        raise AuthorityMissing("Execution blocked: authority missing approver")
+    expires_at = authority.get("expires_at")
 
-    if not authority.get("reason"):
-        raise AuthorityMissing("Execution blocked: authority missing justification")
+    if not expires_at:
+        raise AuthorityMissing("BLOCKED: Execution blocked: authority missing expiry")
+
+    now = datetime.utcnow()
+    expiry = datetime.fromisoformat(expires_at)
+
+    if now > expiry:
+        raise AuthorityExpired("BLOCKED: Execution blocked: authority expired")
+
+    # Execution permitted
+    return {
+        "status": "executed",
+        "action": decision.get("action"),
+        "params": decision.get("params"),
+    }
