@@ -1,0 +1,14 @@
+{
+  "experiment": "authority_gating_comparison",
+  "decision_id": "governed-2",
+  "action": "deploy_model",
+  "execution_allowed": true,
+  "deny_reason": null,
+  "authority": {
+    "present": true,
+    "approved_by": "change-control@company.com",
+    "scope_valid": true,
+    "expired": false
+  },
+  "timestamp": "2026-01-13T18:42:10Z"
+}

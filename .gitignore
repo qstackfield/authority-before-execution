@@ -1,10 +1,27 @@
-# Python
+# =========================
+# Python artifacts
+# =========================
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
 
+# =========================
 # Virtual environments
+# =========================
 venv/
+.env/
+.env.*
 
-# Editor / temp files
+# =========================
+# Editor / OS artifacts
+# =========================
+*.swp
+*.swo
 *.save
-nano
+.DS_Store
+
+# =========================
+# Build / temp
+# =========================
+*.log
+*.tmp

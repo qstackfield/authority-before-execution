@@ -113,6 +113,34 @@ No valid authority → no state change.
 
 ---
 
+## How to Read the Demo
+
+This repository is intentionally minimal.
+
+The demo is not a UI or chatbot.
+It is a deterministic execution boundary evaluated through artifacts.
+
+To understand the demo:
+
+1. Review `demo/sample_artifact.json`  
+   This represents the canonical decision under evaluation.
+
+2. Run `demo/run_demo.py`  
+   Each execution attempt keeps the proposal constant and
+   varies only the authority binding.
+
+3. Observe execution outcomes  
+   Execution is allowed or denied solely based on authority
+   validity, scope, and expiration at runtime.
+
+4. Review evaluation summaries  
+   Aggregated metrics show how often authority is present,
+   violated, or expired for a given decision.
+
+All execution outcomes are traced and evaluated using Opik.
+
+---
+	
 ## Evaluation & Observability
 
 Opik is used as an **evaluation substrate**, not a logging sink.

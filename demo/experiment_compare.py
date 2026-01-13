@@ -1,3 +1,17 @@
+"""
+Experiment: Authority-Gated vs Ungoverned Execution
+
+Hypothesis:
+Decisions without explicit authority will be blocked at execution time.
+Introducing scoped, time-bound authority will increase allowed execution
+without permitting out-of-scope or expired actions.
+
+Metrics:
+- allow_rate
+- deny_reason distribution
+- authority misuse detection
+"""
+
 from datetime import datetime, timezone
 
 from core.decision import Proposal, Decision
@@ -23,11 +37,10 @@ def run_experiment():
             authority=None,
             created_at=datetime.now(timezone.utc),
         )
-        r = execute(decision)
-        results.append(r)
+        results.append(execute(decision))
 
-    # ── Governed executions ──
-    for i in range(3):
+    # ── Governed executions (scoped) ──
+    for i in range(2):
         decision = Decision(
             decision_id=f"governed-{i}",
             proposal=proposal,
@@ -43,10 +56,28 @@ def run_experiment():
             ttl_seconds=30,
         )
 
-        r = execute(decision)
-        results.append(r)
+        results.append(execute(decision))
+
+    # ── Over-broad authority execution ──
+    decision = Decision(
+        decision_id="overbroad-0",
+        proposal=proposal,
+        authority=None,
+        created_at=datetime.now(timezone.utc),
+    )
+
+    decision = bind_authority(
+        decision,
+        approved_by="incident-commander@company.com",
+        reason="Emergency approval without scoped restriction",
+        scope=None,  # intentionally permissive
+        ttl_seconds=30,
+    )
+
+    results.append(execute(decision))
 
     summary = evaluate_decision_runs(results)
+
     print("\n=== Comparative Experiment Summary ===\n")
     print(summary)
 

@@ -3,8 +3,8 @@ executor.py
 
 Execution boundary for authority-gated actions.
 
-This is the only place where state change is allowed.
-All allow/deny outcomes are traced via Opik at the execution boundary.
+This is the only location where execution is permitted.
+All allow/deny outcomes are traced at this boundary.
 """
 
 from __future__ import annotations
@@ -22,8 +22,7 @@ from core.authority_gate import (
     decision_snapshot,
 )
 
-# Initialize Opik using existing config/env (OPIK_* vars or ~/.opik.config).
-# This must live ONLY at the execution boundary.
+# Initialize Opik using environment or ~/.opik.config
 configure()
 
 
@@ -34,11 +33,10 @@ configure()
 )
 def execute(decision: Decision) -> Dict[str, Any]:
     """
-    Execute a decision only if authority is valid at runtime.
+    Attempt execution of a decision.
 
-    This function never throws.
-    It returns a structured allow/deny result so callers can reason
-    about execution outcomes deterministically.
+    This function never raises.
+    It returns a structured result describing allow/deny outcomes.
     """
 
     decision_id = decision.decision_id
@@ -47,9 +45,12 @@ def execute(decision: Decision) -> Dict[str, Any]:
     try:
         enforce_authority(decision)
 
-        # NOTE:
-        # This demo does not perform real side effects.
-        # Execution success here represents a permitted commit boundary.
+        authority = decision.authority
+        overbroad = False
+
+        if authority and authority.scope is None:
+            overbroad = True
+
         return {
             "status": "executed",
             "execution_allowed": True,
@@ -57,6 +58,7 @@ def execute(decision: Decision) -> Dict[str, Any]:
             "decision_id": decision_id,
             "action": action,
             "params": decision.proposal.params,
+            "authority_overbroad": overbroad,
             "decision_snapshot": decision_snapshot(decision),
         }
 
@@ -68,6 +70,7 @@ def execute(decision: Decision) -> Dict[str, Any]:
             "message": str(e),
             "decision_id": decision_id,
             "action": action,
+            "authority_overbroad": False,
         }
 
     except AuthorityExpired as e:
@@ -78,6 +81,7 @@ def execute(decision: Decision) -> Dict[str, Any]:
             "message": str(e),
             "decision_id": decision_id,
             "action": action,
+            "authority_overbroad": False,
         }
 
     except AuthorityScopeViolation as e:
@@ -88,4 +92,5 @@ def execute(decision: Decision) -> Dict[str, Any]:
             "message": str(e),
             "decision_id": decision_id,
             "action": action,
+            "authority_overbroad": False,
         }

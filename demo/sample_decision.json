@@ -1,0 +1,13 @@
+{
+  "decision_id": "demo-deploy-001",
+  "proposal": {
+    "action": "deploy_model",
+    "params": {
+      "model": "gpt-4.1",
+      "environment": "production"
+    },
+    "rationale": "Routine model deployment"
+  },
+  "authority": null,
+  "created_at": "2026-01-13T18:42:00Z"
+}
