@@ -17,8 +17,12 @@ def _print_result(result: dict) -> None:
 
 def main():
     decision = {
+        "decision_id": "demo-deploy-001",
         "action": "deploy_model",
-        "params": {"model": "gpt-4.1", "environment": "production"},
+        "params": {
+            "model": "gpt-4.1",
+            "environment": "production",
+        },
     }
 
     print("\nAttempting execution without authority.\n")
