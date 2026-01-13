@@ -10,7 +10,6 @@ This is intentionally minimal. Authority is not inferred,
 scored, or guessed. It must be present.
 """
 
-
 class AuthorityMissing(Exception):
     pass
 
@@ -29,7 +28,7 @@ def enforce_authority(decision: dict) -> None:
             }
         }
     """
-    authority = decision.get("authority", {})
+    authority = decision.get("authority")
 
     if authority is None:
         raise AuthorityMissing("Execution blocked: authority not bound")
