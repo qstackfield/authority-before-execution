@@ -1,26 +1,79 @@
-from core.authority_gate import enforce_authority, AuthorityMissing
+"""
+executor.py
+
+Execution boundary for authority-gated actions.
+
+This is the only place where state change is allowed.
+All executions are traced with explicit outcomes and reasons.
+"""
+
+from datetime import datetime
+from opik import track, configure
+
+from core.authority_gate import (
+    enforce_authority,
+    AuthorityMissing,
+    AuthorityExpired,
+)
+
+# Initialize Opik using existing config / env vars
+configure()
 
 
-class ExecutionFailed(Exception):
-    pass
-
-
-def execute(decision):
+@track(
+    name="execution.commit",
+    capture_input=True,
+    capture_output=True,
+)
+def execute(decision: dict) -> dict:
     """
-    The only place where state change is allowed.
-    If authority is missing or invalid, execution does not occur.
+    Execute a decision only if authority is valid at runtime.
     """
-    # HARD GATE - nothing happens before this
-    enforce_authority(decision)
 
-    # ---- EXECUTION BEGINS ----
-    # This is intentionally minimal for the demo.
-    # Any real side effect would live here.
     action = decision.get("action")
-    params = decision.get("params", {})
+    authority = decision.get("authority")
 
-    return {
-        "status": "executed",
+    trace_context = {
         "action": action,
-        "params": params,
+        "timestamp": datetime.utcnow().isoformat(),
     }
+
+    try:
+        enforce_authority(decision)
+
+        # Successful execution
+        result = {
+            "status": "executed",
+            "action": action,
+            "params": decision.get("params"),
+        }
+
+        trace_context.update({
+            "execution_result": "executed",
+            "approved_by": authority.get("approved_by") if authority else None,
+            "scope": authority.get("scope") if authority else None,
+            "expires_at": authority.get("expires_at") if authority else None,
+        })
+
+        return result
+
+    except AuthorityMissing as e:
+        trace_context.update({
+            "execution_result": "blocked",
+            "denial_reason": "missing_authority",
+        })
+        raise
+
+    except AuthorityExpired as e:
+        trace_context.update({
+            "execution_result": "blocked",
+            "denial_reason": "expired_authority",
+        })
+        raise
+
+    except Exception as e:
+        trace_context.update({
+            "execution_result": "blocked",
+            "denial_reason": "unknown_error",
+        })
+        raise
