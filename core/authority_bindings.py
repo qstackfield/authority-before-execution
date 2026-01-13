@@ -1,44 +1,35 @@
 """
 authority_bindings.py
 
-Explicit authority binding helpers.
-
-Authority is attached deliberately at runtime.
-Nothing here infers, scores, or automates approval.
-
-If authority is missing, expired, or out of scope,
-execution must fail.
+Binds explicit authority to an existing Decision.
 """
 
-from typing import Dict, List
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+from typing import Iterable
+
+from core.decision import Authority, Decision
 
 
 def bind_authority(
-    decision: Dict,
-    *,
+    decision: Decision,
     approved_by: str,
     reason: str,
-    scope: List[str],
-    ttl_seconds: int = 60,
-) -> Dict:
-    """
-    Bind explicit, time-bound, scoped authority to a decision.
+    scope: Iterable[str],
+    ttl_seconds: int,
+) -> Decision:
+    expires_at = datetime.now(timezone.utc) + timedelta(seconds=ttl_seconds)
 
-    This function does NOT mutate the original decision.
-    It returns a new decision with an authority artifact
-    that must be validated at execution time.
-    """
+    authority = Authority(
+        approved_by=approved_by,
+        reason=reason,
+        scope=list(scope),
+        expires_at=expires_at,
+    )
 
-    expires_at = datetime.utcnow() + timedelta(seconds=ttl_seconds)
-
-    enriched = dict(decision)
-    enriched["authority"] = {
-        "approved_by": approved_by,
-        "reason": reason,
-        "scope": scope,
-        "issued_at": datetime.utcnow().isoformat(),
-        "expires_at": expires_at.isoformat(),
-    }
-
-    return enriched
+    # Return a NEW Decision (immutability preserved)
+    return Decision(
+        proposal=decision.proposal,
+        authority=authority,
+        decision_id=decision.decision_id,
+        created_at=decision.created_at,
+    )
