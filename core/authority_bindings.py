@@ -5,10 +5,12 @@ Explicit authority binding helpers.
 
 Authority is attached deliberately at runtime.
 Nothing here infers, scores, or automates approval.
-If authority is missing or expired, execution must fail.
+
+If authority is missing, expired, or out of scope,
+execution must fail.
 """
 
-from typing import Dict
+from typing import Dict, List
 from datetime import datetime, timedelta
 
 
@@ -17,25 +19,26 @@ def bind_authority(
     *,
     approved_by: str,
     reason: str,
-    ttl_seconds: int = 60
+    scope: List[str],
+    ttl_seconds: int = 60,
 ) -> Dict:
     """
-    Bind explicit, time-bound authority to a decision.
+    Bind explicit, time-bound, scoped authority to a decision.
 
-    This function does not mutate the original decision.
+    This function does NOT mutate the original decision.
     It returns a new decision with an authority artifact
     that must be validated at execution time.
     """
 
-    now = datetime.utcnow()
+    expires_at = datetime.utcnow() + timedelta(seconds=ttl_seconds)
 
     enriched = dict(decision)
-
     enriched["authority"] = {
         "approved_by": approved_by,
         "reason": reason,
-        "issued_at": now.isoformat(),
-        "expires_at": (now + timedelta(seconds=ttl_seconds)).isoformat()
+        "scope": scope,
+        "issued_at": datetime.utcnow().isoformat(),
+        "expires_at": expires_at.isoformat(),
     }
 
     return enriched
