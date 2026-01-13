@@ -76,6 +76,25 @@ Clarity beats scale for this demonstration.
 
 ---
 
+## Non-Goals
+
+This project intentionally does **not** attempt to solve:
+
+- full identity or role-based access control
+- user interfaces for approval workflows
+- policy authoring languages or DSLs
+- long-term credential storage or key management
+- multi-agent coordination or orchestration
+- model training or fine-tuning
+- production-grade deployment or scaling concerns
+
+These are all important problems, but they are **orthogonal** to the core invariant this project is designed to demonstrate.
+
+The goal here is not to build a platform.
+The goal is to make the execution boundary explicit, enforceable, and observable.
+
+---
+
 ## Architecture (High Level)
 
 <pre>
@@ -112,9 +131,9 @@ Multiple runs of the same task can be compared to show **measurable improvement*
 
 ## Hackathon Context
 
-This project is submitted to the **Encode Club COMET Resolution v2 Hackathon**, with a primary focus on:
+This project is submitted to the **Encode Commit To Change: An AI Agents Hackathon Hackathon**, with a primary focus on:
 
-- **Best Use of Opik**
+- **Best Use of Opik (Evaluation-First Agent Governance)**
 
 It is designed to showcase:
 - evaluation-driven agent design
@@ -125,7 +144,7 @@ It is designed to showcase:
 
 ## Status
 
-**Status:** Onboarding complete. Build begins with hackathon start.
+**Status:** Core invariants implemented. Demo scenarios and evaluations in progress.
 
 Current focus:
 - defining the execution boundary
