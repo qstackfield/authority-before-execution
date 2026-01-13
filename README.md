@@ -1,76 +1,79 @@
 # Authority Before Execution  
-### An Evaluation-First Control Plane for Autonomous Agents
+### Evaluation-First Governance for Autonomous Agents
 
 ---
 
 ## Overview
 
-**Authority Before Execution** is a minimal, evaluation-first control plane for autonomous AI agents.
+**Authority Before Execution** is a minimal control plane for autonomous agents where **execution is impossible without explicit, runtime authority**.
 
 The system enforces a single invariant:
 
-> **If explicit authority is not present at execution time, the next state does not exist.**
+> **If authority is not present, valid, and in scope at execution time, the state transition does not occur.**
 
-Agents are allowed to reason, plan, and propose actions - but they are **not allowed to commit state changes** unless authority is explicitly bound at the moment of execution.
+Agents are free to reason, plan, and propose actions.  
+They are **not** allowed to commit changes unless authority is bound at the moment of execution.
 
-This project demonstrates how separating **proposal** from **execution**, combined with continuous evaluation and observability, prevents responsibility drift in agentic systems and makes autonomy measurable instead of anecdotal.
+This project demonstrates how separating **proposal**, **approval**, and **execution**, combined with continuous evaluation and observability, turns agent safety from policy rhetoric into an enforceable system property.
 
 ---
 
 ## Why This Exists
 
-Most agent safety and governance approaches operate **after** execution:
-- logs are reviewed post-incident
-- audits reconstruct intent after damage occurs
-- responsibility is inferred rather than enforced
+Most agent governance approaches operate *after* execution:
+- logs are reviewed post-incident  
+- intent is reconstructed after damage occurs  
+- responsibility is inferred, not enforced  
 
-This project takes the opposite approach:
+This project takes the opposite stance:
 
-- **Authority is bound before execution**
-- **Responsibility is explicit**
-- **Outcomes are evaluated continuously**
-- **Agent quality is measured over time**
+- **Authority is enforced before execution**
+- **Responsibility is explicit, scoped, and time-bound**
+- **Execution outcomes are measurable**
+- **Governance quality is observable over time**
 
-This turns agent safety from storytelling into systems engineering.
+This is not about preventing agents from acting.  
+It is about making *who allowed what, when, and why* a first-class signal.
 
 ---
 
 ## Core Principles
 
 1. **Proposal ≠ Execution**  
-   Agents may suggest actions, but execution is a separate, gated step.
+   Agents may propose freely. Execution is a separate, gated boundary.
 
-2. **Authority Is Time-Bound**  
-   Approval must exist *at execution time*. Past approval is not sufficient.
+2. **Authority Is Runtime-Bound**  
+   Approval must exist *at execution time*. Prior approval alone is insufficient.
 
-3. **No Authority → No State Change**  
-   If approval is missing or expired, execution is blocked by design.
+3. **Fail Closed by Design**  
+   Missing, expired, or out-of-scope authority blocks execution deterministically.
 
-4. **Everything Is Observable**  
-   Proposals, approvals, denials, executions, and outcomes are fully traced.
+4. **Governance Is Observable**  
+   Every allow, deny, scope violation, and expiration is traced.
 
 5. **Evaluation Comes First**  
-   Agent behavior is continuously evaluated using structured metrics, not vibes.
+   Agent behavior is measured with data, not narratives.
 
 ---
 
 ## What This Project Demonstrates
 
-This repository is a **focused vertical slice**, not a full platform.
+This repository is a **deliberate vertical slice**, not a platform.
 
 It demonstrates:
-- a single autonomous agent workflow
+- a typed decision contract (proposal → authority → execution)
 - explicit execution gating
-- approval artifacts with scope and expiration
-- auditable decision flow
-- Opik-based tracing, experiments, and evaluations
-- measurable improvement across agent runs
+- scoped and time-bound approvals
+- deterministic allow / deny behavior
+- Opik-based tracing and experiment comparison
+- **governance quality metrics**, not just success rates
 
 It intentionally avoids:
-- large infrastructure
-- multi-agent orchestration
-- production authentication systems
-- external integrations
+- infrastructure sprawl
+- UI layers
+- orchestration frameworks
+- production auth systems
+- feature completeness
 
 Clarity beats scale for this demonstration.
 
@@ -80,91 +83,93 @@ Clarity beats scale for this demonstration.
 
 This project intentionally does **not** attempt to solve:
 
-- full identity or role-based access control
-- user interfaces for approval workflows
-- policy authoring languages or DSLs
-- long-term credential storage or key management
-- multi-agent coordination or orchestration
+- identity or role-based access control
+- approval workflow UIs
+- policy DSLs or rule engines
+- credential storage or key management
+- multi-agent orchestration
 - model training or fine-tuning
-- production-grade deployment or scaling concerns
+- production deployment concerns
 
-These are all important problems, but they are **orthogonal** to the core invariant this project is designed to demonstrate.
+Those problems matter - but they are **orthogonal**.
 
-The goal here is not to build a platform.
-The goal is to make the execution boundary explicit, enforceable, and observable.
+The goal here is to make the **execution boundary explicit, enforceable, and measurable**.
 
 ---
 
 ## Architecture (High Level)
 
-<pre>
-User Task
-   ↓
-Agent (Reasoning + Proposal)
-   ↓
-Evaluation + Trace (Opik)
-   ↓
-Approval Gate
-   ├─ Approved → Execute → Outcome Traced
-   └─ Denied   → Block   → Denial Traced
-</pre>
+**User Task**  
+↓ 
+**Agent (Reasoning + Proposal)**  
+↓  
+**Evaluation + Trace (Opik)**  
+↓  
+**Authority Gate**  
+- Approved → Execute → Outcome Traced  
+- Denied → Block → Denial Traced  
 
-Execution is impossible without a valid approval artifact at the moment of commit.
+No valid authority → no state change.
 
 ---
 
 ## Evaluation & Observability
 
-This project uses **Opik** to treat evaluation as a first-class system primitive.
+Opik is used as an **evaluation substrate**, not a logging sink.
 
 Tracked signals include:
-- decision correctness
-- safety and policy alignment
-- unnecessary retries
-- execution denials
-- trajectory efficiency
-- outcome quality
+- execution allow / deny rates
+- denial reasons (missing, expired, out-of-scope authority)
+- authority scope correctness
+- overbroad approval usage
+- comparative outcomes across runs
 
-Multiple runs of the same task can be compared to show **measurable improvement**, regressions, and tradeoffs.
+This allows teams to distinguish:
+- *execution success*  
+- from *governance quality*
+
+An execution can succeed **and still be flagged as governance-poor**.
+
+That distinction is the point.
 
 ---
 
 ## Hackathon Context
 
-This project is submitted to the **Encode Commit To Change: An AI Agents Hackathon Hackathon**, with a primary focus on:
+Submitted to **Encode - Commit To Change: An AI Agents Hackathon**  
+Primary focus:
 
-- **Best Use of Opik (Evaluation-First Agent Governance)**
+- **Best Use of Opik**
 
-It is designed to showcase:
+This project showcases:
 - evaluation-driven agent design
 - observability beyond logs
-- governance enforced at execution time
+- authority enforced at execution time
+- measurable governance signals Opik can surface
 
 ---
 
 ## Status
 
-**Status:** Core invariants implemented. Demo scenarios and evaluations in progress.
+**Status:** Core invariants implemented.  
+Decision-level evaluation and comparative experiments in place.
 
 Current focus:
-- defining the execution boundary
-- implementing approval gating
-- instrumenting full traces and evaluations
+- refining authority quality metrics
+- expanding comparative experiment coverage
 - preparing a clear, reproducible demo
-
-This repository will evolve incrementally with a working vertical slice and documented experiments.
 
 ---
 
-## Running the Project (Coming Soon)
+## Running the Project
 
-Instructions for running the demo locally will be added once the initial vertical slice is complete.
+Local run instructions will be added once the demo scenario set is finalized.
 
 ---
 
 ## Author’s Note
 
-This repository represents a **deliberate extraction** from a larger internal system, scoped specifically to demonstrate authority-before-execution and evaluation-driven agent governance.
+This repository is a **deliberate extraction** from a larger internal system, scoped specifically to demonstrate authority-before-execution and evaluation-driven governance.
 
 The goal is not to build more features.  
 The goal is to make autonomy **legible, bounded, and provable**.
