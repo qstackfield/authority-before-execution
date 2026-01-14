@@ -1,43 +1,45 @@
-# =========================
-# Python bytecode / cache
-# =========================
+# ==================================================
+# Python runtime / bytecode (NEVER COMMIT)
+# ==================================================
 __pycache__/
 *.py[cod]
 *.pyo
+*.pyc
 
-# =========================
+# ==================================================
 # Virtual environments
-# =========================
+# ==================================================
 venv/
-.env/
-.env.*
 .venv/
+.env
+.env.*
+.envrc
 
-# =========================
-# Editor / OS artifacts
-# =========================
+# ==================================================
+# OS / editor artifacts
+# ==================================================
+.DS_Store
+Thumbs.db
 *.swp
 *.swo
 *.save
 *.bak
-.DS_Store
-Thumbs.db
 
-# =========================
-# Logs / temp files
-# =========================
+# ==================================================
+# Logs / temporary output
+# ==================================================
 *.log
 *.tmp
 *.out
 
-# =========================
-# Runtime execution artifacts
-# =========================
-# These are GENERATED at demo / execution time
-# and must NEVER be committed.
+# ==================================================
+# Demo-generated execution artifacts (CRITICAL)
+# ==================================================
+# These are REAL artifacts produced at runtime.
+# They prove enforcement, but must never be committed.
 docs/artifacts/
 
-# =========================
-# Optional local-only files
-# =========================
+# ==================================================
+# Local-only configuration
+# ==================================================
 .opik.config
