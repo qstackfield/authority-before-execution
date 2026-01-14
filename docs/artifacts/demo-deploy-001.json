@@ -1,0 +1,19 @@
+{
+  "action": "deploy_model",
+  "authority": {
+    "approved_by": "security-lead@company.com",
+    "expires_at": "2026-01-14T21:08:30.867458Z",
+    "scope": "deploy_model"
+  },
+  "authority_overbroad": false,
+  "decision_id": "demo-deploy-001",
+  "deny_reason": "expired_authority",
+  "enforcement_point": "execution.commit",
+  "execution_allowed": false,
+  "invariant_id": "ABE-EXEC-001",
+  "params": {
+    "environment": "production",
+    "model": "gpt-4.1"
+  },
+  "timestamp": "2026-01-14T21:08:31.875885Z"
+}
