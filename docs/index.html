@@ -1,158 +1,225 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Authority Before Execution - Evaluation-First Agent Governance</title>
-  <meta name="description" content="Authority Before Execution is an evaluation-first control plane that enforces explicit authority at execution time for autonomous agents. Built for measurable governance, not vibes." />
+  <title>Authority Before Execution — Evaluation-First Agent Governance</title>
+  <meta name="description" content="Authority Before Execution is an evaluation-first control plane that enforces explicit authority at execution time for autonomous agents. Measurable governance, not vibes." />
   <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
-  <main class="container">
+  <a class="skip" href="#content">Skip to content</a>
 
-    <header class="hero">
-      <h1>Authority Before Execution</h1>
-      <p class="subtitle">
-        An evaluation-first control plane for autonomous agents.
+  <main id="content" class="page">
+    <header class="top">
+      <div class="kicker">Authority Before Execution</div>
+      <h1>Governance you can measure. Execution you can prove.</h1>
+
+      <p class="lede">
+        Autonomous systems don’t fail because they can’t reason.
+        They fail because execution gets treated like a side effect instead of a controlled boundary.
       </p>
-      <p class="thesis">
-        If explicit authority is not present at execution time,
-        the next state does not exist.
-      </p>
+
+      <div class="invariant" role="note" aria-label="Core invariant">
+        <div class="label">Core invariant</div>
+        <div class="rule">
+          <span>No explicit authority at execution time</span>
+          <span class="sep">→</span>
+          <span>no state change</span>
+        </div>
+        <div class="subrule">
+          Authority must be present, scoped, and unexpired at the moment of commit.
+        </div>
+      </div>
+
+      <div class="cta-row">
+        <a class="btn" href="#artifacts">See the artifacts</a>
+        <a class="btn ghost" href="https://github.com/qstackfield/authority-before-execution">View source</a>
+      </div>
+
+      <div class="meta">
+        <div class="pill">Hackathon focus: Best Use of Opik</div>
+        <div class="pill">Scope: minimal vertical slice</div>
+        <div class="pill">Output: reproducible runs + eval summary</div>
+      </div>
     </header>
 
-    <section>
-      <h2>Why This Exists</h2>
-      <p>
-        Most agent governance systems analyze behavior <em>after</em> execution.
-        Logs are reviewed post-incident. Responsibility is inferred retroactively.
-        Safety is narrated, not enforced.
-      </p>
-      <p>
-        This project takes the opposite stance:
-        <strong>authority is bound before execution</strong>,
-        responsibility is explicit, and outcomes are measured continuously.
-      </p>
-    </section>
-
-    <section>
-      <h2>The Core Invariant</h2>
-      <div class="invariant">
-        <code>
-          No authority at execution time → no state change
-        </code>
+    <section class="grid">
+      <div class="card">
+        <h2>What this is</h2>
+        <p>
+          A small control plane that separates <strong>proposal</strong> from <strong>execution</strong>.
+          Agents can propose freely. Execution is gated by a time-bound authority artifact.
+        </p>
+        <ul class="bullets">
+          <li>Fail-closed execution boundary</li>
+          <li>Typed decision contract</li>
+          <li>Deterministic allow/deny outputs</li>
+          <li>Decision-level evaluation summary</li>
+        </ul>
       </div>
-      <p>
-        Agents may reason freely. They may propose actions.
-        But execution is a gated, observable, and measurable boundary.
-      </p>
+
+      <div class="card">
+        <h2>What this is not</h2>
+        <p>
+          This is not a platform. It intentionally avoids everything that would hide the invariant behind “features.”
+        </p>
+        <ul class="bullets">
+          <li>RBAC / identity systems</li>
+          <li>Approval UI</li>
+          <li>Policy DSLs</li>
+          <li>Multi-agent orchestration</li>
+          <li>Production deployment concerns</li>
+        </ul>
+      </div>
     </section>
 
-    <section>
-      <h2>Execution Flow</h2>
-      <pre class="diagram">
-User Task
+    <section class="section">
+      <h2>Why this exists</h2>
+      <div class="split">
+        <div class="panel">
+          <h3>Most systems</h3>
+          <p>
+            Analyze agent behavior <em>after</em> execution. Logs and postmortems reconstruct intent once damage is already done.
+            Responsibility drifts, and governance becomes narrative.
+          </p>
+        </div>
+
+        <div class="panel">
+          <h3>This system</h3>
+          <p>
+            Treats execution as a controlled boundary. Authority is bound at runtime, and outcomes are evaluated as a system property.
+            If authority isn’t present (or isn’t valid), the next state cannot exist.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Execution flow</h2>
+      <div class="flow">
+        <pre class="diagram" aria-label="Execution flow diagram"><code>User Task
   ↓
-Agent (Reasoning + Proposal)
+Agent (reasoning + proposal)
   ↓
-Evaluation + Trace (Opik)
+Evaluation + trace (Opik)
   ↓
-Authority Gate
-├─ Approved → Execute → Outcome Traced
-└─ Denied   → Block   → Denial Traced
-      </pre>
-      <p class="caption">
-        Execution is impossible without a valid, scoped, time-bound authority artifact
-        at the moment of commit.
-      </p>
+Authority gate
+├─ Approved → Execute → Outcome traced
+└─ Denied   → Block   → Denial traced</code></pre>
+
+        <div class="flow-notes">
+          <div class="note">
+            <div class="note-title">Execution boundary</div>
+            <p>
+              Execution is the only place “state change” is permitted. Every commit attempt produces a structured,
+              inspectable allow/deny result.
+            </p>
+          </div>
+          <div class="note">
+            <div class="note-title">Authority properties</div>
+            <ul class="bullets tight">
+              <li><strong>Explicit</strong>: never inferred</li>
+              <li><strong>Scoped</strong>: covers only specific actions</li>
+              <li><strong>Time-bound</strong>: expires automatically</li>
+              <li><strong>Explainable</strong>: includes approver + reason</li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section>
-      <h2>What Is Measured</h2>
-      <ul>
-        <li>Execution allow / deny rate</li>
-        <li>Denial reason distribution</li>
-        <li>Expired or missing authority attempts</li>
-        <li>Out-of-scope authority usage</li>
-        <li>Overbroad authority detection</li>
-      </ul>
-      <p>
-        Governance quality is treated as a measurable system property,
-        not a philosophical claim.
-      </p>
+    <section class="section">
+      <h2>What gets measured</h2>
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-k">Allow rate</div>
+          <div class="metric-v">Allowed / total attempts</div>
+          <div class="metric-d">Shows how often execution is actually permitted under governance.</div>
+        </div>
+        <div class="metric">
+          <div class="metric-k">Denial breakdown</div>
+          <div class="metric-v">missing / expired / out-of-scope</div>
+          <div class="metric-d">Makes failure modes visible and comparable across runs.</div>
+        </div>
+        <div class="metric">
+          <div class="metric-k">Misuse signal</div>
+          <div class="metric-v">overbroad authority used</div>
+          <div class="metric-d">Flags governance anti-patterns where authority is too wide.</div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-title">Why Opik matters here</div>
+        <p>
+          Opik isn’t used as a dashboard accessory. It’s used at the boundary where truth exists:
+          the execution commit and the evaluation summary.
+        </p>
+      </div>
     </section>
 
-    <section>
-      <h2>Experiments & Artifacts</h2>
-      <p>
-        This repository includes reproducible experiments and concrete artifacts:
+    <section id="artifacts" class="section">
+      <h2>Reproducible artifacts</h2>
+      <p class="small">
+        These are real outputs and inputs from the repo — no screenshots required. Judges can inspect structure directly.
       </p>
-      <ul>
-        <li>
-          <a href="../demo/EXPERIMENT.md">Experiment Design</a> -
-          how governed vs ungoverned executions were compared
-        </li>
-        <li>
-          <a href="../demo/sample_decision.json">Sample Decision</a> -
-          the canonical execution input
-        </li>
-        <li>
-          <a href="../demo/sample_execution_result.json">Sample Execution Result</a> -
-          the resulting execution artifact
-        </li>
-      </ul>
-      <p>
-        All executions are traced and evaluated using <strong>Opik</strong>,
-        treating observability as a first-class primitive.
-      </p>
-    </section>
 
-    <section>
-      <h2>What This Is Not</h2>
-      <p>
-        This is not a full platform, UI, or orchestration layer.
-        It intentionally avoids:
-      </p>
-      <ul>
-        <li>Role-based access control systems</li>
-        <li>Approval user interfaces</li>
-        <li>Policy DSLs</li>
-        <li>Multi-agent coordination</li>
-        <li>Production deployment concerns</li>
-      </ul>
-      <p>
-        The goal is clarity, not scale.
-      </p>
-    </section>
-
-    <section>
-      <h2>Hackathon Context</h2>
-      <p>
-        This project was built for the
-        <strong>Encode “Commit To Change” AI Agents Hackathon</strong>
-        with a focus on <strong>Best Use of Opik</strong>.
-      </p>
-      <p>
-        It demonstrates how evaluation and observability can be used
-        to enforce governance <em>before</em> execution,
-        not merely analyze failures afterward.
-      </p>
-    </section>
-
-    <footer>
-      <p>
-        Source:
-        <a href="https://github.com/qstackfield/authority-before-execution">
-          GitHub Repository
+      <div class="artifact-grid">
+        <a class="artifact" href="../demo/EXPERIMENT.md">
+          <div class="artifact-title">Experiment design</div>
+          <div class="artifact-desc">Method, question, metrics, and interpretation.</div>
+          <div class="artifact-path">demo/EXPERIMENT.md</div>
         </a>
-      </p>
-      <p class="footnote">
-        This project is a deliberate extraction from a larger internal system
-        to make the execution boundary legible, enforceable, and provable.
-      </p>
-    </footer>
 
+        <a class="artifact" href="../demo/sample_decision.json">
+          <div class="artifact-title">Sample decision</div>
+          <div class="artifact-desc">Canonical typed contract serialized to JSON.</div>
+          <div class="artifact-path">demo/sample_decision.json</div>
+        </a>
+
+        <a class="artifact" href="../demo/sample_execution_result.json">
+          <div class="artifact-title">Sample execution result</div>
+          <div class="artifact-desc">Structured allow/deny output from the commit boundary.</div>
+          <div class="artifact-path">demo/sample_execution_result.json</div>
+        </a>
+      </div>
+
+      <div class="run">
+        <h3>Run it</h3>
+        <div class="cmd">
+          <code>python3 -m demo.run_demo</code>
+        </div>
+        <div class="cmd">
+          <code>python3 -m demo.experiment_compare</code>
+        </div>
+        <p class="small">
+          Both scripts are deterministic and produce an evaluation summary. Opik captures traces at execution and evaluation.
+        </p>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Hackathon context</h2>
+      <p>
+        Built for the Encode “Commit To Change” AI Agents Hackathon with a focus on <strong>Best Use of Opik</strong>:
+        evaluation-first development, traceable execution, and measurable governance outcomes.
+      </p>
+      <p class="small">
+        This repository is intentionally small. The claim is not “we built more.”
+        The claim is “we made execution legible and enforceable.”
+      </p>
+    </section>
+
+    <footer class="footer">
+      <div class="footer-left">
+        <div class="foot-title">Authority Before Execution</div>
+        <div class="foot-sub">Evaluation-first control plane for autonomous agents.</div>
+      </div>
+      <div class="footer-right">
+        <a href="https://github.com/qstackfield/authority-before-execution">GitHub</a>
+      </div>
+    </footer>
   </main>
 </body>
 </html>
