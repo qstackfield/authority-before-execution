@@ -3,159 +3,387 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Authority Before Execution — Governance </title>
-  <meta name="description" content="Execution-time authority enforcement. Proof, artifacts, and reproducibility." />
+  <title>Authority Before Execution - Execution Console</title>
+  <meta name="description" content="Execution-time authority enforcement with traceable outcomes. A read-only console for judges to verify runtime gating and artifacts." />
   <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
-  <main class="dossier">
-
-    <header class="cover">
-      <div class="cover__label">Governance</div>
-      <h1>Authority Before Execution</h1>
-      <p class="cover__subtitle">
-        Execution-time authority enforcement with measurable outcomes.
-      </p>
-
-      <div class="cover__meta">
-        <div><strong>Invariant ID:</strong> ABE-EXEC-001</div>
-        <div><strong>Enforcement Point:</strong> core/executor.py</div>
-        <div><strong>Tracing:</strong> Opik (execution.commit)</div>
+  <div class="app">
+    <aside class="side">
+      <div class="side__brand">
+        <div class="mark" aria-hidden="true"></div>
+        <div class="side__title">
+          <div class="name">Authority Before Execution</div>
+          <div class="meta">Execution Console · proof-first · read-only</div>
+        </div>
       </div>
-    </header>
 
-    <section class="block">
-      <h2>1. Executive Summary</h2>
-      <p>
-        This repository demonstrates a single enforced invariant:
-      </p>
-      <p class="invariant">
-        If explicit authority is not present, valid, and in scope at execution time,
-        the state transition must not occur.
-      </p>
-      <p>
-        Authority is enforced at the execution boundary. It is not inferred,
-        reconstructed, or scored post-hoc.
-      </p>
-    </section>
+      <nav class="side__nav" aria-label="Primary">
+        <a href="#overview" class="nav__item">Overview</a>
+        <a href="#invariant" class="nav__item">Invariant</a>
+        <a href="#run" class="nav__item">Reproduce</a>
+        <a href="#evidence" class="nav__item">Evidence</a>
+        <a href="#traces" class="nav__item">Traces</a>
+      </nav>
 
-    <section class="block">
-      <h2>2. What Is Being Proven</h2>
-      <ul>
-        <li>Execution fails closed without authority</li>
-        <li>Authority must be valid at runtime (not earlier)</li>
-        <li>Scope violations are deterministically blocked</li>
-        <li>Expired approvals are rejected</li>
-        <li>All outcomes are observable and reproducible</li>
-      </ul>
-    </section>
-
-    <section class="block">
-      <h2>3. Enforcement Boundary</h2>
-      <p>
-        The executor is the only location where state change is permitted.
-        All allow / deny outcomes are decided here.
-      </p>
-      <pre class="mono">
-core/executor.py
-  └─ enforce_authority(decision)
-     ├─ missing authority  → deny
-     ├─ expired authority  → deny
-     ├─ scope violation    → deny
-     └─ valid authority    → execute
-      </pre>
-      <p>
-        There are no alternative commit paths.
-      </p>
-    </section>
-
-    <section class="block">
-      <h2>4. Decision Contract</h2>
-      <p>
-        Governance is enforced through a typed decision object.
-        Execution depends only on fields present at runtime.
-      </p>
-      <pre class="mono">
-Decision
-  - proposal (action, params, rationale)
-  - authority (approved_by, scope, expires_at)
-  - created_at
-      </pre>
-      <p>
-        This prevents approval context from being lost across wrappers,
-        tools, or demos.
-      </p>
-    </section>
-
-    <section class="block">
-      <h2>5. Reproducible Proof</h2>
-      <p>
-        To reproduce the invariant:
-      </p>
-      <pre class="mono">
-python3 -m demo.run_demo
-      </pre>
-      <p>
-        The demo performs four execution attempts against the same proposal:
-      </p>
-      <ol>
-        <li>No authority</li>
-        <li>Valid scoped authority</li>
-        <li>Out-of-scope authority</li>
-        <li>Expired authority</li>
-      </ol>
-    </section>
-
-    <section class="block">
-      <h2>6. Observable Outputs</h2>
-      <p>
-        Each execution attempt produces:
-      </p>
-      <ul>
-        <li>Structured allow / deny result</li>
-        <li>Decision-level evaluation metrics</li>
-        <li>Immutable JSON artifacts written at runtime</li>
-        <li>Execution boundary traces in Opik</li>
-      </ul>
-    </section>
-
-    <section class="block">
-      <h2>7. Evaluation Verdict</h2>
-      <pre class="mono">
-Invariant ABE-EXEC-001: HELD
-
-All invalid execution attempts were blocked
-at the execution boundary.
-      </pre>
-    </section>
-
-    <section class="block">
-      <h2>8. Non-Goals (Explicit)</h2>
-      <ul>
-        <li>Identity or RBAC systems</li>
-        <li>Approval user interfaces</li>
-        <li>Policy DSLs</li>
-        <li>Multi-agent orchestration</li>
-        <li>Production deployment concerns</li>
-      </ul>
-      <p>
-        This dossier isolates enforcement, not scale.
-      </p>
-    </section>
-
-    <footer class="footer">
-      <div>
-        Repository:
-        <a href="https://github.com/qstackfield/authority-before-execution">
-          github.com/qstackfield/authority-before-execution
-        </a>
+      <div class="side__footer">
+        <div class="kv">
+          <div class="k">Mode</div><div class="v">Static website</div>
+          <div class="k">Purpose</div><div class="v">Judge verification</div>
+          <div class="k">Repo</div>
+          <div class="v">
+            <a href="https://github.com/qstackfield/authority-before-execution">github.com/qstackfield/authority-before-execution</a>
+          </div>
+        </div>
       </div>
-      <div>
-        Hackathon: Encode - Commit To Change (Best Use of Opik)
-      </div>
-    </footer>
+    </aside>
 
-  </main>
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar__left">
+          <div class="topbar__label">Execution Boundary Proof</div>
+          <div class="topbar__hint">Everything below is inspectable. No UI theater.</div>
+        </div>
+        <div class="topbar__right">
+          <a class="btn btn--ghost" href="https://github.com/qstackfield/authority-before-execution">View Repository</a>
+          <a class="btn" href="#run">Run Demo</a>
+        </div>
+      </header>
+
+      <section id="overview" class="section">
+        <div class="section__head">
+          <h1>Execution-time authority enforcement, made legible.</h1>
+          <p class="lead">
+            This site is a read-only console for verifying the core claim:
+            governance is enforced at the execution boundary, not narrated after the fact.
+          </p>
+        </div>
+
+        <div class="grid grid--2">
+          <div class="panel">
+            <div class="panel__title">What this is</div>
+            <div class="panel__body">
+              <ul class="list">
+                <li><span class="tag">Enforcement</span> Execution is blocked unless authority is present, valid, in scope, and unexpired.</li>
+                <li><span class="tag">Deterministic</span> Executor returns structured results (no exceptions callers can ignore).</li>
+                <li><span class="tag">Traceable</span> Opik traces capture the decision snapshot at <span class="mono">execution.commit</span>.</li>
+                <li><span class="tag">Verifiable</span> The demo writes immutable JSON artifacts on each attempt.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel__title">What judges should do</div>
+            <div class="panel__body">
+              <ol class="steps">
+                <li>Run the demo command once.</li>
+                <li>Verify the four outcomes (missing, valid, out-of-scope, expired).</li>
+                <li>Inspect the JSON artifacts written to disk.</li>
+                <li>Confirm traces exist for the boundary in Opik.</li>
+              </ol>
+              <div class="note">
+                No backend is required for the website because the proof lives at the execution boundary and in artifacts/traces.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="invariant" class="section">
+        <div class="section__head">
+          <h2>Invariant</h2>
+          <p class="sub">
+            The system is built around one execution rule. If it doesn’t hold, the design fails.
+          </p>
+        </div>
+
+        <div class="invariant">
+          <div class="invariant__meta">
+            <div class="chip">Invariant ID: <span class="mono">ABE-EXEC-001</span></div>
+            <div class="chip">Enforcement Point: <span class="mono">core/executor.py</span></div>
+          </div>
+          <div class="invariant__text">
+            If explicit authority is not present, valid, and in scope at execution time, the state transition must not occur.
+          </div>
+          <div class="invariant__mini mono">
+            No authority at execution time → no state change
+          </div>
+        </div>
+
+        <div class="grid grid--3">
+          <div class="panel panel--tight">
+            <div class="panel__title">Fail closed</div>
+            <div class="panel__body">
+              Missing authority blocks execution deterministically.
+            </div>
+          </div>
+          <div class="panel panel--tight">
+            <div class="panel__title">Scope bound</div>
+            <div class="panel__body">
+              Authority only covers the approved action. Anything else is blocked.
+            </div>
+          </div>
+          <div class="panel panel--tight">
+            <div class="panel__title">Time bound</div>
+            <div class="panel__body">
+              Authority expires. Expired approvals cannot commit state.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="run" class="section">
+        <div class="section__head">
+          <h2>Reproduce in under a minute</h2>
+          <p class="sub">
+            This is the fastest path for a judge to verify enforcement and see artifacts.
+          </p>
+        </div>
+
+        <div class="cmd">
+          <div class="cmd__label">Command</div>
+          <pre class="cmd__box"><span class="mono">python3 -m demo.run_demo</span></pre>
+          <div class="cmd__label">What it proves</div>
+          <div class="cmd__proof">
+            <div class="pill pill--deny">BLOCK</div> missing authority<br />
+            <div class="pill pill--ok">ALLOW</div> valid scoped authority<br />
+            <div class="pill pill--deny">BLOCK</div> scope violation<br />
+            <div class="pill pill--deny">BLOCK</div> expired authority
+          </div>
+        </div>
+
+        <div class="grid grid--2">
+          <div class="panel">
+            <div class="panel__title">Where the proof is written</div>
+            <div class="panel__body">
+              The demo writes immutable artifacts locally:
+              <div class="mono box">docs/artifacts/*.json</div>
+              If you want a clean run:
+              <div class="mono box">rm -rf docs/artifacts &amp;&amp; python3 -m demo.run_demo</div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel__title">What makes this “real” (not simulation)</div>
+            <div class="panel__body">
+              This demo is a deterministic execution boundary test. “Real” here means:
+              <ul class="list">
+                <li>The executor genuinely enforces allow/deny at runtime.</li>
+                <li>The results are traced (Opik) and written as artifacts (JSON) each run.</li>
+                <li>Changing authority changes the outcome; nothing else does.</li>
+              </ul>
+              It’s not an external integration showcase. It’s boundary enforcement proof.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="evidence" class="section">
+        <div class="section__head">
+          <h2>Evidence</h2>
+          <p class="sub">
+            The website loads the same repository artifacts judges can inspect directly.
+          </p>
+        </div>
+
+        <div class="grid grid--2">
+          <div class="panel">
+            <div class="panel__title">Experiment design</div>
+            <div class="panel__body">
+              <div class="row">
+                <div class="k">Document</div>
+                <div class="v">
+                  <a id="linkExperiment" href="#" rel="noopener">demo/EXPERIMENT.md</a>
+                </div>
+              </div>
+              <div class="row">
+                <div class="k">Purpose</div>
+                <div class="v">Governed vs ungoverned comparison (decision-level)</div>
+              </div>
+              <div class="row">
+                <div class="k">Key metric</div>
+                <div class="v">allow/deny rate + deny breakdown + overbroad detection</div>
+              </div>
+              <div class="note">
+                If a link ever fails in Pages, you can still verify via the repository view on the right.
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel__title">Repository files (direct)</div>
+            <div class="panel__body">
+              <ul class="list">
+                <li><a id="linkExecutor" href="#" rel="noopener">core/executor.py</a> — the commit boundary</li>
+                <li><a id="linkGate" href="#" rel="noopener">core/authority_gate.py</a> — authority enforcement rules</li>
+                <li><a id="linkDemo" href="#" rel="noopener">demo/run_demo.py</a> — reproduction script</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel__title">JSON viewers (loaded from repo)</div>
+          <div class="panel__body">
+            <div class="tabs" role="tablist" aria-label="JSON panels">
+              <button class="tab is-active" data-target="jsonDecision" role="tab" aria-selected="true">Decision (input)</button>
+              <button class="tab" data-target="jsonResult" role="tab" aria-selected="false">Execution Result (output)</button>
+            </div>
+
+            <div class="jsonwrap">
+              <div class="jsonmeta">
+                <div class="jsonmeta__left">
+                  <span class="mono" id="jsonSourceLabel">Loading…</span>
+                </div>
+                <div class="jsonmeta__right">
+                  <button class="btn btn--ghost btn--small" id="btnReload">Reload</button>
+                </div>
+              </div>
+
+              <pre class="json" id="jsonDecision" aria-label="Sample decision JSON"></pre>
+              <pre class="json is-hidden" id="jsonResult" aria-label="Sample execution result JSON"></pre>
+
+              <div class="tiny">
+                Note: These sample JSON files live in the repo for readability. The demo run produces real JSON artifacts on disk every execution attempt.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="traces" class="section">
+        <div class="section__head">
+          <h2>Traces</h2>
+          <p class="sub">
+            Traces are where enforcement becomes provable: the boundary is captured at <span class="mono">execution.commit</span>.
+          </p>
+        </div>
+
+        <div class="grid grid--2">
+          <div class="panel">
+            <div class="panel__title">What to look for in Opik</div>
+            <div class="panel__body">
+              <ul class="list">
+                <li>Trace name: <span class="mono">execution.commit</span></li>
+                <li>Input: decision snapshot (proposal + authority)</li>
+                <li>Output: structured allow/deny result</li>
+                <li>Repeated runs: consistent outcomes based only on authority</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel__title">Paste a trace link (optional)</div>
+            <div class="panel__body">
+              <div class="note">
+                If you want this site to show your latest trace link, paste it into <span class="mono">docs/index.html</span> where noted in the script block.
+                This is optional and does not affect enforcement.
+              </div>
+              <div class="mono box" id="traceLinkBox">Trace link: (not set)</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div class="footer__left">
+          <div class="mono">Authority Before Execution</div>
+          <div class="tiny">A vertical slice to make the execution boundary enforceable, observable, and measurable.</div>
+        </div>
+        <div class="footer__right">
+          <a class="btn btn--ghost" href="#overview">Back to top</a>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    // ----------------------------
+    // Console hydration (no frameworks)
+    // ----------------------------
+    (function () {
+      const repo = "qstackfield/authority-before-execution";
+      const branch = "main";
+
+      // GitHub file links (normal and raw)
+      const gh = (path) => "https://github.com/" + repo + "/blob/" + branch + "/" + path;
+      const raw = (path) => "https://raw.githubusercontent.com/" + repo + "/" + branch + "/" + path;
+
+      // Fix your 404 problem: GitHub Pages cannot read ../demo/*,
+      // so we load directly from raw GitHub URLs.
+      const SOURCES = {
+        decision: raw("demo/sample_decision.json"),
+        result: raw("demo/sample_execution_result.json"),
+        experiment: gh("demo/EXPERIMENT.md"),
+        executor: gh("core/executor.py"),
+        gate: gh("core/authority_gate.py"),
+        demo: gh("demo/run_demo.py"),
+      };
+
+      // Optional: paste your Opik trace link here if you want it shown on site.
+      const OPIK_TRACE_LINK = ""; // e.g. "https://www.comet.com/opik/...your-trace..."
+
+      // Bind links
+      document.getElementById("linkExperiment").href = SOURCES.experiment;
+      document.getElementById("linkExecutor").href = SOURCES.executor;
+      document.getElementById("linkGate").href = SOURCES.gate;
+      document.getElementById("linkDemo").href = SOURCES.demo;
+
+      // Trace link display
+      const traceBox = document.getElementById("traceLinkBox");
+      if (OPIK_TRACE_LINK && OPIK_TRACE_LINK.startsWith("http")) {
+        traceBox.innerHTML = 'Trace link: <a href="' + OPIK_TRACE_LINK + '" rel="noopener">' + OPIK_TRACE_LINK + "</a>";
+      }
+
+      // Tabs
+      const tabs = Array.from(document.querySelectorAll(".tab"));
+      const panels = {
+        jsonDecision: document.getElementById("jsonDecision"),
+        jsonResult: document.getElementById("jsonResult"),
+      };
+
+      function selectTab(targetId) {
+        for (const t of tabs) t.classList.toggle("is-active", t.dataset.target === targetId);
+        for (const [id, el] of Object.entries(panels)) el.classList.toggle("is-hidden", id !== targetId);
+
+        const label = document.getElementById("jsonSourceLabel");
+        if (targetId === "jsonDecision") label.textContent = "Source: " + SOURCES.decision;
+        if (targetId === "jsonResult") label.textContent = "Source: " + SOURCES.result;
+      }
+
+      for (const t of tabs) {
+        t.addEventListener("click", () => selectTab(t.dataset.target));
+      }
+
+      // Fetch + pretty print
+      async function loadJson(url) {
+        const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) throw new Error(res.status + " " + res.statusText);
+        const txt = await res.text();
+        return JSON.stringify(JSON.parse(txt), null, 2);
+      }
+
+      async function hydrate() {
+        try {
+          panels.jsonDecision.textContent = await loadJson(SOURCES.decision);
+        } catch (e) {
+          panels.jsonDecision.textContent = "Could not load: " + SOURCES.decision + "\n" + String(e);
+        }
+
+        try {
+          panels.jsonResult.textContent = await loadJson(SOURCES.result);
+        } catch (e) {
+          panels.jsonResult.textContent = "Could not load: " + SOURCES.result + "\n" + String(e);
+        }
+
+        selectTab("jsonDecision");
+      }
+
+      document.getElementById("btnReload").addEventListener("click", hydrate);
+
+      hydrate();
+    })();
+  </script>
 </body>
 </html>
