@@ -1,5 +1,5 @@
 # =========================
-# Python artifacts
+# Python bytecode / cache
 # =========================
 __pycache__/
 *.py[cod]
@@ -11,6 +11,7 @@ __pycache__/
 venv/
 .env/
 .env.*
+.venv/
 
 # =========================
 # Editor / OS artifacts
@@ -18,10 +19,25 @@ venv/
 *.swp
 *.swo
 *.save
+*.bak
 .DS_Store
+Thumbs.db
 
 # =========================
-# Build / temp
+# Logs / temp files
 # =========================
 *.log
 *.tmp
+*.out
+
+# =========================
+# Runtime execution artifacts
+# =========================
+# These are GENERATED at demo / execution time
+# and must NEVER be committed.
+docs/artifacts/
+
+# =========================
+# Optional local-only files
+# =========================
+.opik.config
