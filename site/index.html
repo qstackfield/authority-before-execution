@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Authority Before Execution - Evaluation-First Agent Governance</title>
+  <meta name="description" content="Authority Before Execution is an evaluation-first control plane that enforces explicit authority at execution time for autonomous agents. Built for measurable governance, not vibes." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <main class="container">
+
+    <header class="hero">
+      <h1>Authority Before Execution</h1>
+      <p class="subtitle">
+        An evaluation-first control plane for autonomous agents.
+      </p>
+      <p class="thesis">
+        If explicit authority is not present at execution time,
+        the next state does not exist.
+      </p>
+    </header>
+
+    <section>
+      <h2>Why This Exists</h2>
+      <p>
+        Most agent governance systems analyze behavior <em>after</em> execution.
+        Logs are reviewed post-incident. Responsibility is inferred retroactively.
+        Safety is narrated, not enforced.
+      </p>
+      <p>
+        This project takes the opposite stance:
+        <strong>authority is bound before execution</strong>,
+        responsibility is explicit, and outcomes are measured continuously.
+      </p>
+    </section>
+
+    <section>
+      <h2>The Core Invariant</h2>
+      <div class="invariant">
+        <code>
+          No authority at execution time → no state change
+        </code>
+      </div>
+      <p>
+        Agents may reason freely. They may propose actions.
+        But execution is a gated, observable, and measurable boundary.
+      </p>
+    </section>
+
+    <section>
+      <h2>Execution Flow</h2>
+      <pre class="diagram">
+User Task
+  ↓
+Agent (Reasoning + Proposal)
+  ↓
+Evaluation + Trace (Opik)
+  ↓
+Authority Gate
+├─ Approved → Execute → Outcome Traced
+└─ Denied   → Block   → Denial Traced
+      </pre>
+      <p class="caption">
+        Execution is impossible without a valid, scoped, time-bound authority artifact
+        at the moment of commit.
+      </p>
+    </section>
+
+    <section>
+      <h2>What Is Measured</h2>
+      <ul>
+        <li>Execution allow / deny rate</li>
+        <li>Denial reason distribution</li>
+        <li>Expired or missing authority attempts</li>
+        <li>Out-of-scope authority usage</li>
+        <li>Overbroad authority detection</li>
+      </ul>
+      <p>
+        Governance quality is treated as a measurable system property,
+        not a philosophical claim.
+      </p>
+    </section>
+
+    <section>
+      <h2>Experiments & Artifacts</h2>
+      <p>
+        This repository includes reproducible experiments and concrete artifacts:
+      </p>
+      <ul>
+        <li>
+          <a href="../demo/EXPERIMENT.md">Experiment Design</a> —
+          how governed vs ungoverned executions were compared
+        </li>
+        <li>
+          <a href="../demo/sample_decision.json">Sample Decision</a> —
+          the canonical execution input
+        </li>
+        <li>
+          <a href="../demo/sample_execution_result.json">Sample Execution Result</a> —
+          the resulting execution artifact
+        </li>
+      </ul>
+      <p>
+        All executions are traced and evaluated using <strong>Opik</strong>,
+        treating observability as a first-class primitive.
+      </p>
+    </section>
+
+    <section>
+      <h2>What This Is Not</h2>
+      <p>
+        This is not a full platform, UI, or orchestration layer.
+        It intentionally avoids:
+      </p>
+      <ul>
+        <li>Role-based access control systems</li>
+        <li>Approval user interfaces</li>
+        <li>Policy DSLs</li>
+        <li>Multi-agent coordination</li>
+        <li>Production deployment concerns</li>
+      </ul>
+      <p>
+        The goal is clarity, not scale.
+      </p>
+    </section>
+
+    <section>
+      <h2>Hackathon Context</h2>
+      <p>
+        This project was built for the
+        <strong>Encode “Commit To Change” AI Agents Hackathon</strong>
+        with a focus on <strong>Best Use of Opik</strong>.
+      </p>
+      <p>
+        It demonstrates how evaluation and observability can be used
+        to enforce governance <em>before</em> execution,
+        not merely analyze failures afterward.
+      </p>
+    </section>
+
+    <footer>
+      <p>
+        Source:
+        <a href="https://github.com/qstackfield/authority-before-execution">
+          GitHub Repository
+        </a>
+      </p>
+      <p class="footnote">
+        This project is a deliberate extraction from a larger internal system
+        to make the execution boundary legible, enforceable, and provable.
+      </p>
+    </footer>
+
+  </main>
+</body>
+</html>
