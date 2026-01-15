@@ -28,6 +28,7 @@ It does not perform enforcement or simulation.
 
 All authority checks, enforcement, and artifact generation occur at execution time
 in `core/executor.py`.
+
 ---
 
 ## The problem
