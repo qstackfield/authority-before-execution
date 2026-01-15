@@ -17,6 +17,17 @@ Run the baseline demo to verify enforcement immediately:
 
     python3 -m demo.run_demo
 
+## Required: Inspection website
+
+This submission includes a required website:
+
+https://qstackfield.github.io/authority-before-execution/
+
+The website is a **read-only inspection surface** over execution artifacts.
+It does not perform enforcement or simulation.
+
+All authority checks, enforcement, and artifact generation occur at execution time
+in `core/executor.py`.
 ---
 
 ## The problem

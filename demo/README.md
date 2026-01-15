@@ -1,19 +1,9 @@
-## Demo entry points (judge guide)
+## Demo Entry Points (Judge Guide)
 
-Start here:
+This directory contains **multiple demonstrations of the same invariant**.
+You do NOT need to run all of them.
 
-1. `python3 -m demo.run_demo`
-   - Runs the canonical enforcement demo
-   - Produces allow/deny artifacts
-   - Emits Opik trace at execution.commit
+### Start here (required)
 
-Optional deep dives:
-
-2. `run_prompt_injection.py`
-   - Shows why prompt-only controls fail
-
-3. `experiment_compare.py`
-   - Compares agent-only vs execution-gated behavior
-
-4. `run_authority_drift.py`
-   - Shows time-bound authority expiration
+```bash
+python3 -m demo.run_demo
