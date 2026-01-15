@@ -1,225 +1,306 @@
 # Authority Before Execution
-
-## Evaluation-First Governance for Autonomous Agents
-
-Authority Before Execution is a minimal control plane for autonomous agents where **execution is impossible without explicit, runtime authority**.
-
-The system enforces one invariant:
-
-> **If authority is not present, valid, and in scope at execution time, the state transition does not occur.**
-
-Agents may reason, plan, and propose actions freely.  
-They are **not allowed to commit state changes** unless authority is bound at the moment of execution.
-
-This repository is intentionally small. It is designed to be judged quickly: enforcement boundary, artifacts, evaluation, and traces.
+## Execution-Time Governance for Autonomous Agents  
+**Encode · Commit to Change Hackathon Submission**
 
 ---
 
-## The Invariant
+## TL;DR
 
-**Invariant ID:** ABE-EXEC-001
+**Authority Before Execution makes unsafe AI actions impossible by enforcing explicit, scoped authority at the moment of execution — and proves it with measurable evidence.**
 
-**Invariant statement:**  
-If explicit authority is not present, valid, and in scope **at execution time**, the state transition must not occur.
-
-**What makes this real:**
-- Enforcement happens at a single execution boundary (the commit point).
-- Outcomes are returned as structured results (no “best effort”, no caller discretion).
-- Every attempt writes an immutable JSON execution artifact.
-- Opik traces capture boundary behavior and evaluation summaries.
+This is not a guardrail.  
+This is an execution boundary.
 
 ---
 
-## Quick Proof (Run This First)
+## The problem
 
-Run the baseline proof:
+AI agents are becoming autonomous enough to:
+- deploy code
+- modify infrastructure
+- delete data
+- trigger irreversible actions
+
+Most safety approaches focus on:
+- prompt hardening
+- alignment tuning
+- intent classification
+- post-incident logging
+
+All of these approaches share the same flaw:
+
+**They operate after execution.**
+
+But harm does not occur during reasoning.  
+Harm occurs during **state change**.
+
+This project governs execution — not thought.
+
+---
+
+## The core invariant
+
+**Invariant ID:** `ABE-EXEC-001`
+
+> If explicit authority is not present, valid, and in scope at execution time,  
+> the state transition must not occur.
+
+Everything in this repository exists to enforce, test, and prove this rule.
+
+---
+
+## What this system does
+
+Authority Before Execution separates autonomy into three explicit phases:
+
+1. **Proposal**  
+   Agents may reason freely and propose any action.
+
+2. **Authority**  
+   Approval is explicit, scoped, and time-bound.
+
+3. **Execution**  
+   The action is permitted **only if authority is valid at execution time**.
+
+If authority is:
+- missing
+- expired
+- reused
+- out of scope
+
+Execution is deterministically blocked.
+
+No retries.  
+No reinterpretation.  
+No “best effort.”
+
+---
+
+## Why this is different
+
+Most systems ask:
+
+> “Did the agent behave correctly?”
+
+This system asks:
+
+> **“Should this execution have been allowed to happen at all?”**
+
+Prompt injection does not matter here.  
+Alignment failures do not matter here.  
+Intent does not matter here.
+
+Only execution-time authority determines reality.
+
+---
+
+## What is proven (not claimed)
+
+This repository demonstrates **real enforcement**, not simulated safety.
+
+It proves:
+- execution without authority is impossible (fail-closed)
+- scope violations are deterministically blocked
+- expired approvals cannot be reused (replay / drift prevention)
+- prompt injection cannot escalate authority
+- overbroad approvals are detectable and measurable
+- governance quality is observable independently of execution success
+
+Every claim is backed by:
+- deterministic runs
+- immutable artifacts
+- repeatable evaluation
+- measurable deltas
+
+---
+
+## Demo suite
+
+All demos enforce the same invariant and execution boundary.
+
+### Demo 0 - Baseline execution proof
+
+Run:
 
     python3 -m demo.run_demo
 
-What you should see:
-1. Attempt without authority → **blocked** (fail closed)
-2. Attempt with valid scoped authority → **permitted**
-3. Attempt out of scope → **blocked**
-4. Attempt after expiration → **blocked**
-5. Evaluation summary printed at the end
-6. JSON artifacts written under:
+Proves:
+- missing authority → BLOCKED
+- valid scoped authority → PERMITTED
+- wrong scope → BLOCKED
+- expired authority → BLOCKED
 
-    docs/artifacts/
-
-Artifacts are generated at runtime and include:
-- decision_id
-- timestamp
-- action
-- authority context (issuer, scope, expires_at)
-- execution_allowed (true/false)
-- deny_reason (if blocked)
-
-This is enforcement proof, not narrative.
+Each attempt writes an immutable JSON artifact under `docs/artifacts/`.
 
 ---
 
-## Demo Suite (Four Proofs, Four Failure Modes)
+### Demo A - Controlled variance at scale
 
-These demos build on the same invariant and execution boundary. Each isolates a different governance risk.
+Run:
 
-### Demo A - Controlled Variance (distribution proof)
+    python3 -m demo.run_variance --n 50 --seed 7
+    python3 -m demo.run_variance --n 200 --seed 7 --quiet
 
-    python3 -m demo.run_variance
+Proves:
+- the invariant holds across dozens or hundreds of executions
+- outcomes are deterministic and reproducible
+- deny reasons form a measurable distribution
+- overbroad authority can succeed and is flagged as governance-poor
 
-Purpose:
-- Same invariant
-- Many attempts
-- Mixed scopes and TTLs
-- Produces deny distributions and overbroad usage detection
-
-What judges should take away:
-- Denials are deterministic and categorized
-- Authority quality becomes measurable (not just “success rate”)
+This is not fuzzing.  
+It is controlled, explainable variance.
 
 ---
 
-### Demo B - Prompt Injection Mapped to Authority (escalation proof)
+### Demo B - Prompt injection is irrelevant
+
+Run:
 
     python3 -m demo.run_prompt_injection
 
-Purpose:
-- Demonstrate why prompt content is not enough to cause state change
-- Injection attempts to escalate scope or action
-- Authority gate blocks escalation at execution time
+Proves:
+- prompt injection cannot escalate authority
+- reasoning content does not affect execution
+- only execution-time authority determines state change
 
-What judges should take away:
-- Prompt injection fails when authority is enforced at execution time
-- “Reasoning” cannot create permissions the system does not grant
+Alignment without authority is theater.
 
 ---
 
-### Demo C - Authority Drift / Replay Prevention (revalidation proof)
+### Demo C - Authority drift and replay prevention
+
+Run:
 
     python3 -m demo.run_authority_drift
 
-Purpose:
-- Show that approvals cannot be reused indefinitely
-- A valid approval becomes invalid after expiry
-- Replay attempt is blocked deterministically
-
-What judges should take away:
-- Execution-time enforcement prevents replay and drift
-- “Approval happened earlier” is not sufficient
+Proves:
+- authority cannot be reused after expiration
+- replay attempts fail deterministically
+- execution-time validation prevents drift
 
 ---
 
-### Demo D - Comparative Agent Outcomes (delta proof)
+### Demo D - Comparative agent evaluation
 
-    python3 -m demo.run_comparative_agent
+Run:
 
-Purpose:
-- Same agent, same prompts, two modes:
-  - Mode 1: no authority bound at execution time
-  - Mode 2: authority bound at execution time
+    python3 -m demo.run_comparative_agent --n 12
+    python3 -m demo.run_comparative_agent --n 12 --scope none
 
-What judges should take away:
-- The execution boundary stays constant
-- Only execution-time authority determines what becomes real
-- You can quantify the delta with evaluation summaries and artifacts
+Proves:
+- same agent, same prompts, different outcomes
+- governance changes behavior
+- overbroad approvals allow execution but degrade governance quality
 
----
-
-## Architecture (High Level)
-
-User Task  
-↓  
-Agent (Reasoning + Proposal)  
-↓  
-Evaluation + Trace (Opik)  
-↓  
-Execution Boundary (commit point)  
-↓  
-Authority Gate (runtime enforcement)
-
-Approved → Execute → Outcome Traced  
-Denied → Block → Denial Traced  
-
-**No valid authority → no state change.**
+**Key insight:**  
+An execution can succeed and still be unsafe.
 
 ---
 
-## Where Enforcement Happens (The Only Commit Point)
+## Evaluation and observability (Opik)
 
-The execution boundary is explicit:
+Opik is used as an **evaluation substrate**, not a logging sink.
 
-- `core/executor.py` is the only place state-changing execution is permitted.
-- `core/authority_gate.py` enforces authority at runtime:
-  - missing authority → deny
-  - expired authority → deny
-  - out of scope → deny
-- `core/artifact_exporter.py` writes immutable JSON artifacts for every attempt.
-- `core/evaluation.py` computes decision-level metrics (allow rate, deny breakdown, overbroad usage).
-- Opik traces capture boundary behavior and evaluation summaries.
-
-This is the point: governance is enforced at the commit boundary, not reconstructed after the fact.
-
----
-
-## Evaluation and Observability
-
-Opik is used as an evaluation substrate, not as a logging sink.
-
-Tracked and evaluated signals include:
-- allow / deny rates
-- deny reasons (missing, expired, scope violation)
+Tracked signals include:
+- allow vs deny rates
+- deny reason distributions
+- scope violations
+- expired authority usage
 - overbroad authority usage
-- comparative outcomes across runs
+- governed vs ungoverned deltas
 
-This allows teams to separate:
-- execution success
-from
-- governance quality
-
-An execution can succeed and still be governance-poor.  
-That distinction is measurable here.
+Execution success ≠ safe execution.  
+This system makes that distinction visible.
 
 ---
 
-## Non-Goals (On Purpose)
+## Execution artifacts
 
-This project intentionally does not attempt to solve:
-- identity and RBAC
-- approval workflow UI
-- policy DSLs
-- credential storage / key management
-- multi-agent orchestration frameworks
-- production deployment patterns
+Every execution attempt produces an immutable JSON artifact:
 
-Those problems matter, but they are orthogonal to proving the invariant.
+    docs/artifacts/
 
-The goal here is to make the execution boundary **explicit, enforceable, and measurable**.
+Each artifact includes:
+- decision ID
+- timestamp
+- proposal details
+- authority context
+- allow / deny outcome
+- denial reason (if applicable)
+
+If an artifact exists, execution occurred.
 
 ---
 
-## Website (Hackathon Requirement)
+## Architecture (minimal by design)
 
-The repository includes a static website under `docs/` intended for judge inspection.  
-It is a visual inspection layer over the same proofs (invariant, artifacts, evaluation, traces).  
-It is not a backend service and does not change execution behavior.
+Agent (reasoning + proposal)  
+↓  
+Evaluation & tracing (Opik)  
+↓  
+Authority gate (execution boundary)  
+- permitted → execute → artifact  
+- blocked → no state change → artifact  
+
+No valid authority means no state change.
+
+---
+
+## The console
+
+The backend already produces the truth.
+
+The console exposes:
+- every execution attempt
+- bound authority and scope
+- TTL at execution time
+- allow / deny outcomes
+- governance quality metrics
+
+The console does not interpret behavior.  
+It reveals reality.
+
+---
+
+## Hackathon context
+
+Submitted to **Encode · Commit to Change — AI Agents Hackathon**.
+
+Primary focus:
+- **Best Use of Opik**
+
+This project uses Opik to:
+- enforce invariants
+- evaluate execution outcomes
+- compare governed vs ungoverned behavior
+- surface governance failures
+- measure execution safety
 
 ---
 
 ## Status
 
-Implemented and working:
-- execution boundary enforcement
-- runtime authority validation
-- immutable execution artifacts
-- decision-level evaluation summaries
-- Opik tracing for enforcement proof
+The backend is complete and frozen:
+- invariant enforced
+- demos deterministic
+- artifacts immutable
+- evaluation operational
+- scale validated
 
-This repository is designed to be run and judged quickly.
+All future work (console, site, demo video) reflects this reality.
 
 ---
 
-## Author’s Note
+## Author’s note
 
 This repository is a deliberate extraction from a larger internal system.
 
-The goal is not to build more features.  
-The goal is to make autonomy **legible**, **bounded**, and **provable**.
+The goal is not to add features.
+
+The goal is to make autonomy:
+- legible
+- bounded
+- provable
+
+Execution is where responsibility lives.  
+This system enforces that truth.
