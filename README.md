@@ -11,6 +11,12 @@
 This is not a guardrail.  
 This is an execution boundary.
 
+**Judges: start here**
+
+Run the baseline demo to verify enforcement immediately:
+
+    python3 -m demo.run_demo
+
 ---
 
 ## The problem
