@@ -6,7 +6,7 @@
 
 ## TL;DR
 
-**Authority Before Execution makes unsafe AI actions impossible by enforcing explicit, scoped authority at the moment of execution — and proves it with measurable evidence.**
+**Authority Before Execution makes unsafe AI actions impossible by enforcing explicit, scoped authority at the moment of execution and proves it with measurable evidence.**
 
 This is not a guardrail.  
 This is an execution boundary.
@@ -34,7 +34,7 @@ All of these approaches share the same flaw:
 But harm does not occur during reasoning.  
 Harm occurs during **state change**.
 
-This project governs execution — not thought.
+This project governs execution - not thought.
 
 ---
 
@@ -264,7 +264,7 @@ It reveals reality.
 
 ## Hackathon context
 
-Submitted to **Encode · Commit to Change — AI Agents Hackathon**.
+Submitted to **Encode · Commit to Change -  AI Agents Hackathon**.
 
 Primary focus:
 - **Best Use of Opik**
