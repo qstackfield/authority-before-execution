@@ -36,8 +36,14 @@ Thumbs.db
 # Demo-generated execution artifacts (CRITICAL)
 # ==================================================
 # These are REAL artifacts produced at runtime.
-# They prove enforcement, but must never be committed.
-docs/artifacts/
+# The bulk corpus must NEVER be committed.
+docs/artifacts/*
+
+# --------------------------------------------------
+# Explicitly allow judge-facing inspection files
+# --------------------------------------------------
+!docs/artifacts/README.md
+!docs/artifacts/manifest.json
 
 # ==================================================
 # Local-only configuration

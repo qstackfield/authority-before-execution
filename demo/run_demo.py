@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import json
 import time
 import uuid
@@ -12,17 +13,12 @@ from core.executor import execute
 from core.evaluation import evaluate_decision_runs, log_decision_evaluation
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Invariant definition (this is the thing being proven)
-# ──────────────────────────────────────────────────────────────────────────────
-
 INVARIANT_ID = "ABE-EXEC-001"
 INVARIANT_STATEMENT = (
     "If explicit authority is not present, valid, and in scope at execution time, "
     "the state transition must not occur."
 )
 
-# Where real execution artifacts are written
 ARTIFACT_DIR = Path("docs/artifacts")
 
 
@@ -43,62 +39,12 @@ def _safe_read_json(path: Path) -> Optional[dict]:
         return None
 
 
-def _print_header(title: str) -> None:
-    print("\n" + "═" * 78)
-    print(title)
-    print("═" * 78)
+def _hr(char: str = "─", width: int = 78) -> None:
+    print(char * width)
 
 
-def _print_section(title: str) -> None:
-    print("\n" + "─" * 78)
-    print(title)
-    print("─" * 78)
-
-
-def _print_kv(key: str, value: Any, width: int = 18) -> None:
+def _print_kv(key: str, value: Any, width: int = 16) -> None:
     print(f"{key:<{width}}: {value}")
-
-
-def _report_attempt(label: str, decision: Decision, result: Dict[str, Any]) -> None:
-    """
-    Human-readable report that makes the execution boundary legible.
-    Judges should be able to understand the outcome without reading code.
-    """
-    _print_section(label)
-
-    _print_kv("decision_id", result.get("decision_id") or decision.decision_id)
-    _print_kv("action", result.get("action") or decision.proposal.action)
-
-    auth = decision.authority
-    if auth is None:
-        _print_kv("authority", "NONE")
-    else:
-        _print_kv("approved_by", auth.approved_by)
-        _print_kv("scope", auth.scope if auth.scope is not None else "(overbroad)")
-        _print_kv("expires_at", _fmt_ts(auth.expires_at))
-
-    if result.get("execution_allowed"):
-        _print_kv("outcome", "PERMITTED")
-    else:
-        _print_kv("outcome", "BLOCKED")
-        _print_kv("deny_reason", result.get("deny_reason"))
-        msg = result.get("message")
-        if msg:
-            _print_kv("message", msg)
-
-    artifact_path = result.get("artifact_path")
-    if artifact_path:
-        p = Path(artifact_path)
-        _print_kv("artifact", str(p))
-        if p.exists():
-            _print_kv("artifact_written", "yes")
-            artifact_json = _safe_read_json(p)
-            if artifact_json:
-                _print_kv("artifact_ts", artifact_json.get("timestamp"))
-
-    snap = result.get("decision_snapshot")
-    if snap:
-        _print_kv("snapshot", "included (traceable input contract)")
 
 
 def _build_base_decision() -> Decision:
@@ -118,7 +64,7 @@ def _build_base_decision() -> Decision:
 def _bind_authority(decision: Decision, ttl_seconds: int) -> Decision:
     auth = Authority(
         approved_by="security-lead@company.com",
-        reason="Change approved under incident protocol IR-2026-014",
+        reason="Approved under incident protocol IR-2026-014",
         scope="deploy_model",
         expires_at=_now_utc() + timedelta(seconds=ttl_seconds),
     )
@@ -130,83 +76,168 @@ def _bind_authority(decision: Decision, ttl_seconds: int) -> Decision:
     )
 
 
+def _attempt_line(n: int, decision: Decision, result: Dict[str, Any]) -> str:
+    action = result.get("action") or decision.proposal.action
+    allowed = bool(result.get("execution_allowed"))
+    outcome = "PERMITTED" if allowed else "BLOCKED"
+    deny = result.get("deny_reason") if not allowed else "—"
+
+    auth = decision.authority
+    if auth is None:
+        auth_str = "NONE"
+        scope_str = "—"
+        exp_str = "—"
+    else:
+        auth_str = auth.approved_by
+        scope_str = auth.scope if auth.scope is not None else "(overbroad)"
+        exp_str = _fmt_ts(auth.expires_at)
+
+    return (
+        f"{n}) {decision.decision_id:<14}  "
+        f"{action:<12}  "
+        f"{outcome:<9}  "
+        f"{deny:<16}  "
+        f"{scope_str:<12}  "
+        f"{exp_str}"
+    )
+
+
+def _artifact_summary(dir_path: Path) -> Dict[str, Any]:
+    artifacts = sorted(dir_path.glob("*.json"))
+    known = {
+        "demo-deploy-001.json": dir_path / "demo-deploy-001.json",
+        "demo-delete-001.json": dir_path / "demo-delete-001.json",
+        "manifest.json": dir_path / "manifest.json",
+    }
+
+    present_known = {k: str(p) for k, p in known.items() if p.exists()}
+    return {
+        "count": len(artifacts),
+        "known": present_known,
+    }
+
+
 def main() -> None:
+    parser = argparse.ArgumentParser(
+        prog="demo.run_demo",
+        description="Authority Before Execution — execution boundary proof",
+    )
+    parser.add_argument("--ttl", type=int, default=5, help="Authority TTL seconds (default: 5)")
+    parser.add_argument("--wait", type=int, default=6, help="Wait seconds to ensure TTL expires (default: 6)")
+    parser.add_argument(
+        "--list-artifacts",
+        action="store_true",
+        help="List all artifact JSON paths (not recommended for video)",
+    )
+    parser.add_argument(
+        "--compact",
+        action="store_true",
+        help="Reduce header verbosity for small screens",
+    )
+    args = parser.parse_args()
+
     run_id = str(uuid.uuid4())
     run_started_at = _now_utc()
 
-    _print_header("Authority Before Execution — Execution Boundary Proof")
-
-    _print_kv("run_id", run_id)
-    _print_kv("started_at", _fmt_ts(run_started_at))
-    _print_kv("invariant_id", INVARIANT_ID)
-    _print_kv("invariant", INVARIANT_STATEMENT)
-
     ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
+
+    if not args.compact:
+        _hr("═")
+        print("Authority Before Execution — Execution Boundary Proof")
+        _hr("═")
+        _print_kv("run_id", run_id)
+        _print_kv("started_at", _fmt_ts(run_started_at))
+        _print_kv("invariant_id", INVARIANT_ID)
+        _print_kv("invariant", INVARIANT_STATEMENT)
+        _hr()
+    else:
+        print("Authority Before Execution — Execution Boundary Proof")
+        _print_kv("invariant_id", INVARIANT_ID)
+        _hr()
 
     results: List[Dict[str, Any]] = []
 
     base = _build_base_decision()
 
-    # 1) Missing authority → must fail closed
-    _print_section("1) Attempt without authority")
-    r = execute(base)
-    results.append(r)
-    _report_attempt("Result", base, r)
+    # 1) Missing authority
+    r1 = execute(base)
+    results.append(r1)
 
-    # 2) Valid scoped authority → permitted
-    authorized = _bind_authority(base, ttl_seconds=5)
-    _print_section("2) Attempt with valid scoped authority")
-    r = execute(authorized)
-    results.append(r)
-    _report_attempt("Result", authorized, r)
+    # 2) Valid scoped authority
+    authorized = _bind_authority(base, ttl_seconds=args.ttl)
+    r2 = execute(authorized)
+    results.append(r2)
 
-    # 3) Same authority, different action → scope violation
+    # 3) Scope violation
     destructive = Decision(
         decision_id="demo-delete-001",
         proposal=Proposal(
             action="delete_model",
             params={"model": "gpt-4.1", "environment": "production"},
-            rationale="Attempted destructive action (should be blocked by scope)",
+            rationale="Attempted destructive action (must be blocked by scope)",
         ),
         authority=authorized.authority,
         created_at=_now_utc(),
     )
-    _print_section("3) Attempt out of scope (authority does not cover action)")
-    r = execute(destructive)
-    results.append(r)
-    _report_attempt("Result", destructive, r)
+    r3 = execute(destructive)
+    results.append(r3)
 
-    # 4) Expired authority → denied
-    print("\nWaiting for authority TTL to expire...")
-    time.sleep(6)
+    # 4) Expired authority
+    if args.wait > 0:
+        time.sleep(args.wait)
+    r4 = execute(authorized)
+    results.append(r4)
 
-    _print_section("4) Attempt after authority expiration")
-    r = execute(authorized)
-    results.append(r)
-    _report_attempt("Result", authorized, r)
+    # Attempt table (low-scroll)
+    print("Attempts")
+    _hr()
+    print(
+        f"{'#':<2} {'decision_id':<14}  {'action':<12}  {'outcome':<9}  "
+        f"{'deny_reason':<16}  {'scope':<12}  {'expires_at'}"
+    )
+    _hr()
+    print(_attempt_line(1, base, r1))
+    print(_attempt_line(2, authorized, r2))
+    print(_attempt_line(3, destructive, r3))
+    print(_attempt_line(4, authorized, r4))
+    _hr()
 
     # Evaluation summary
-    _print_header("Evaluation Summary (decision-level)")
     summary = evaluate_decision_runs(results)
+    print("Evaluation Summary")
+    _hr()
     print(json.dumps(summary, indent=2, sort_keys=True))
     log_decision_evaluation(summary)
+    _hr()
 
-    # Final verdict (this is the money line)
-    _print_header("Invariant Verdict")
-    invariant_held = summary.get("allowed", 0) == 1 and summary.get("denied", 0) == 3
-
+    # Verdict
+    invariant_held = (summary.get("allowed", 0) == 1) and (summary.get("denied", 0) == 3)
+    print("Invariant Verdict")
+    _hr()
     if invariant_held:
         print(f"Invariant {INVARIANT_ID}: HELD")
         print("All invalid execution attempts were blocked at the execution boundary.")
     else:
         print(f"Invariant {INVARIANT_ID}: VIOLATED")
         print("One or more invalid executions were permitted (unexpected).")
+    _hr()
 
-    _print_section("Artifacts written (local proof)")
-    for p in sorted(ARTIFACT_DIR.glob("*.json")):
-        print(f"- {p}")
-
-    print("\nDone.\n")
+    # Artifacts: summary by default, full list only if requested
+    a = _artifact_summary(ARTIFACT_DIR)
+    print("Artifacts (local proof)")
+    _hr()
+    print(f"- {ARTIFACT_DIR}/ ({a['count']} JSON files)")
+    for name, path in a["known"].items():
+        print(f"- {name}: {path}")
+        j = _safe_read_json(Path(path))
+        if j and "timestamp" in j:
+            print(f"  timestamp: {j['timestamp']}")
+    if args.list_artifacts:
+        _hr()
+        for p in sorted(ARTIFACT_DIR.glob("*.json")):
+            print(f"- {p}")
+    _hr()
+    print("Done.")
 
 
 if __name__ == "__main__":
