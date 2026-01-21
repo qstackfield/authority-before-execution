@@ -3,15 +3,7 @@ from __future__ import annotations
 from collections import Counter
 from typing import Any, Dict, List
 
-
-def _opik_track(name: str):
-    try:
-        from opik import track  # type: ignore
-        return track(name=name)
-    except Exception:
-        def _noop(fn):
-            return fn
-        return _noop
+from core.observability_guard import trace_if_enabled
 
 
 def evaluate_decision_runs(results: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -42,6 +34,6 @@ def evaluate_decision_runs(results: List[Dict[str, Any]]) -> Dict[str, Any]:
     }
 
 
-@_opik_track("decision.evaluation")
+@trace_if_enabled("decision.evaluation")
 def log_decision_evaluation(summary: Dict[str, Any]) -> Dict[str, Any]:
     return summary

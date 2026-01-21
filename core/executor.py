@@ -4,41 +4,27 @@ from typing import Any, Dict
 
 from core.decision import Decision
 from core.authority_gate import (
-    enforce_authority,
-    AuthorityMissing,
     AuthorityExpired,
+    AuthorityMissing,
     AuthorityScopeViolation,
     decision_snapshot,
+    enforce_authority,
 )
 from core.artifact_exporter import export_execution_artifacts
-
+from core.observability_guard import trace_if_enabled
 
 INVARIANT_ID = "ABE-EXEC-001"
 ENFORCEMENT_POINT = "execution.commit"
 
 
-def _opik_track_if_available(name: str):
-    try:
-        from opik import track  # type: ignore
-        return track(name=name, capture_input=True, capture_output=True)
-    except Exception:
-        def _noop(fn):
-            return fn
-        return _noop
-
-
-def _configure_opik_if_available() -> None:
-    try:
-        from opik import configure  # type: ignore
-        configure()
-    except Exception:
-        pass
-
-
-@_opik_track_if_available(ENFORCEMENT_POINT)
+@trace_if_enabled(ENFORCEMENT_POINT)
 def execute(decision: Decision) -> Dict[str, Any]:
-    _configure_opik_if_available()
+    """
+    EXECUTION BOUNDARY.
 
+    Authority is enforced here.
+    Observability is optional and non-authoritative.
+    """
     decision_id = decision.decision_id
     action = decision.proposal.action
 
