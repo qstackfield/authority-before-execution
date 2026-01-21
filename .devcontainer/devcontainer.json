@@ -1,0 +1,22 @@
+{
+  "name": "Authority Before Execution",
+  "image": "mcr.microsoft.com/devcontainers/python:3.10",
+
+  "postCreateCommand": "pip install --upgrade pip && pip install -r requirements.txt",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "python.defaultInterpreterPath": "/usr/bin/python3"
+      }
+    }
+  },
+
+  "containerEnv": {
+    "PYTHONUNBUFFERED": "1"
+  }
+}
