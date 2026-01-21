@@ -2,31 +2,32 @@
 
 **Execution-time governance for autonomous agents.**
 
+This repository demonstrates a single, enforceable invariant at the only place that matters: **execution time**.
+
+It is not intent filtering. 
+It is not prompt hygiene.
+It is an **execution boundary**.
+
+---
+
 ## Release Status
 
-This repository is currently at a **stable hackathon checkpoint**.
+**v0.1.0 - Hackathon Evaluation Release**
 
-- **Current tag:** `v0.1.0`
-- **Purpose:** evaluation and inspection
-- **State:** frozen for judging (non-breaking changes only)
+- Stable checkpoint for judging and inspection
+- Execution behavior is frozen (non-breaking changes only)
+- Demo video will show the execution boundary in action
 
-Demo video will demonstrate the execution boundary in action.		
-
-This repository enforces a single invariant at the only place that matters:
-**execution time**.
-
-This is not intent filtering. 
-This is not prompt hygiene.
-This is an **execution boundary**.
+This version exists to be **run, inspected, and verified**.
 
 ---
 
 ## Invariant (ABE-EXEC-001)
 
-If explicit authority is not present, valid, and in scope at execution time, 
-the state transition must not occur.
+If explicit authority is not present, valid, and in scope at execution time,
+**the state transition must not occur**.
 
-This system exists to **enforce** that invariant and **prove it with evidence**.
+The system enforces this invariant and proves it with **runtime artifacts and boundary traces**, not post-hoc interpretation.
 
 ---
 
