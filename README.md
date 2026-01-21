@@ -31,6 +31,37 @@ The system enforces this invariant and proves it with **runtime artifacts and bo
 
 ---
 
+## Productivity Impact (ABE-PROD-001)
+
+Authority Before Execution does not just improve safety. It removes work.
+
+The system enforces execution-time authority, preventing invalid actions from
+ever entering human workflows.
+
+A runnable productivity proof demonstrates this effect:
+
+    python3 -m demo.run_productivity_proof
+
+### Example outcome (default run)
+
+- 100 attempted actions
+- 73 blocked at execution time
+- 73% of potential human decisions eliminated
+
+Each blocked action represents:
+
+- a ticket that was never created
+- a review that never happened
+- a meeting that never needed to be scheduled
+
+No queues.
+No escalations.
+No operational drag.
+
+This is productivity enforced at execution time.
+
+---
+
 ## Judges: Run it in 60 seconds
 
 ### Option A (Recommended): GitHub Codespaces (no local setup)
