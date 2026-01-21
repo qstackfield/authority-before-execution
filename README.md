@@ -38,6 +38,8 @@ No setup.
 
 The output you see **is the enforcement proof**.
 
+Observability is optional and fully disabled by default; execution enforcement never depends on external services.
+
 ### What you should see
 
 The demo performs **four execution attempts**:
