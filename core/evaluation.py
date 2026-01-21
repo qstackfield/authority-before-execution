@@ -1,25 +1,20 @@
-"""
-evaluation.py
-
-Decision-level evaluation for authority-gated execution.
-
-This module aggregates execution outcomes across multiple attempts
-to make governance behavior measurable instead of anecdotal.
-"""
+from __future__ import annotations
 
 from collections import Counter
-from typing import List, Dict
-
-from opik import track
+from typing import Any, Dict, List
 
 
-def evaluate_decision_runs(results: List[Dict]) -> Dict:
-    """
-    Aggregate execution outcomes across multiple attempts.
+def _opik_track(name: str):
+    try:
+        from opik import track  # type: ignore
+        return track(name=name)
+    except Exception:
+        def _noop(fn):
+            return fn
+        return _noop
 
-    Expected input: list of results returned by executor.execute()
-    """
 
+def evaluate_decision_runs(results: List[Dict[str, Any]]) -> Dict[str, Any]:
     total = len(results)
     allowed = 0
     denied = 0
@@ -47,13 +42,6 @@ def evaluate_decision_runs(results: List[Dict]) -> Dict:
     }
 
 
-@track(
-    name="decision.evaluation",
-    capture_input=True,
-    capture_output=True,
-)
-def log_decision_evaluation(summary: Dict) -> Dict:
-    """
-    Emit a single evaluation artifact per experiment or decision batch.
-    """
+@_opik_track("decision.evaluation")
+def log_decision_evaluation(summary: Dict[str, Any]) -> Dict[str, Any]:
     return summary
