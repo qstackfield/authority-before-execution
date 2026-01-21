@@ -124,6 +124,10 @@ If Opik is already configured in your environment, the demo will automatically:
 
 If Opik is not configured, the demo runs normally with **no errors or prompts**.
 
+Observability (Opik) is bound to the execution boundary itself.
+It’s opt-in and disabled by default, but when enabled it emits a trace at the exact commit point (execution.commit).
+Enforcement never depends on logs, traces or dashboards.
+
 ## Inspection Site (Read-Only)
 
 https://qstackfield.github.io/authority-before-execution/
