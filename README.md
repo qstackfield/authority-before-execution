@@ -2,6 +2,16 @@
 
 **Execution-time governance for autonomous agents.**
 
+## Release Status
+
+This repository is currently at a **stable hackathon checkpoint**.
+
+- **Current tag:** `v0.1.0`
+- **Purpose:** evaluation and inspection
+- **State:** frozen for judging (non-breaking changes only)
+
+Demo video will demonstrate the execution boundary in action.		
+
 This repository enforces a single invariant at the only place that matters:
 **execution time**.
 
