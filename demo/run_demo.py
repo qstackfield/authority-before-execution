@@ -120,7 +120,7 @@ def _artifact_summary(dir_path: Path) -> Dict[str, Any]:
 def main() -> None:
     parser = argparse.ArgumentParser(
         prog="demo.run_demo",
-        description="Authority Before Execution — execution boundary proof",
+        description="Authority Before Execution - execution boundary proof",
     )
     parser.add_argument("--ttl", type=int, default=5, help="Authority TTL seconds (default: 5)")
     parser.add_argument("--wait", type=int, default=6, help="Wait seconds to ensure TTL expires (default: 6)")
