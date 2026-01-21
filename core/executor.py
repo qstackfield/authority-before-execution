@@ -12,29 +12,33 @@ from core.authority_gate import (
 )
 from core.artifact_exporter import export_execution_artifacts
 
+
 INVARIANT_ID = "ABE-EXEC-001"
 ENFORCEMENT_POINT = "execution.commit"
 
 
-def _track_if_available(fn):
-    """
-    Apply Opik tracing if installed.
-    Execution must never depend on observability.
-    """
+def _opik_track_if_available(name: str):
     try:
         from opik import track  # type: ignore
-
-        return track(
-            name=ENFORCEMENT_POINT,
-            capture_input=True,
-            capture_output=True,
-        )(fn)
+        return track(name=name, capture_input=True, capture_output=True)
     except Exception:
-        return fn
+        def _noop(fn):
+            return fn
+        return _noop
 
 
-@_track_if_available
+def _configure_opik_if_available() -> None:
+    try:
+        from opik import configure  # type: ignore
+        configure()
+    except Exception:
+        pass
+
+
+@_opik_track_if_available(ENFORCEMENT_POINT)
 def execute(decision: Decision) -> Dict[str, Any]:
+    _configure_opik_if_available()
+
     decision_id = decision.decision_id
     action = decision.proposal.action
 
@@ -57,44 +61,32 @@ def execute(decision: Decision) -> Dict[str, Any]:
             "decision_snapshot": decision_snapshot(decision),
         }
 
+        export_execution_artifacts(decision, result)
+        return result
+
     except AuthorityMissing as e:
-        result = {
-            "status": "blocked",
-            "execution_allowed": False,
-            "deny_reason": "missing_authority",
-            "message": str(e),
-            "decision_id": decision_id,
-            "action": action,
-            "authority_overbroad": False,
-            "invariant_id": INVARIANT_ID,
-            "enforcement_point": ENFORCEMENT_POINT,
-        }
+        deny_reason = "missing_authority"
+        message = str(e)
 
     except AuthorityExpired as e:
-        result = {
-            "status": "blocked",
-            "execution_allowed": False,
-            "deny_reason": "expired_authority",
-            "message": str(e),
-            "decision_id": decision_id,
-            "action": action,
-            "authority_overbroad": False,
-            "invariant_id": INVARIANT_ID,
-            "enforcement_point": ENFORCEMENT_POINT,
-        }
+        deny_reason = "expired_authority"
+        message = str(e)
 
     except AuthorityScopeViolation as e:
-        result = {
-            "status": "blocked",
-            "execution_allowed": False,
-            "deny_reason": "scope_violation",
-            "message": str(e),
-            "decision_id": decision_id,
-            "action": action,
-            "authority_overbroad": False,
-            "invariant_id": INVARIANT_ID,
-            "enforcement_point": ENFORCEMENT_POINT,
-        }
+        deny_reason = "scope_violation"
+        message = str(e)
+
+    result = {
+        "status": "blocked",
+        "execution_allowed": False,
+        "deny_reason": deny_reason,
+        "message": message,
+        "decision_id": decision_id,
+        "action": action,
+        "authority_overbroad": False,
+        "invariant_id": INVARIANT_ID,
+        "enforcement_point": ENFORCEMENT_POINT,
+    }
 
     export_execution_artifacts(decision, result)
     return result

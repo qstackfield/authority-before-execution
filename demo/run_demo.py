@@ -12,6 +12,7 @@ from core.decision import Proposal, Authority, Decision
 from core.executor import execute
 from core.evaluation import evaluate_decision_runs, log_decision_evaluation
 
+
 INVARIANT_ID = "ABE-EXEC-001"
 INVARIANT_STATEMENT = (
     "If explicit authority is not present, valid, and in scope at execution time, "
@@ -19,14 +20,6 @@ INVARIANT_STATEMENT = (
 )
 
 ARTIFACT_DIR = Path("docs/artifacts")
-
-
-def _configure_opik_if_available() -> None:
-    try:
-        from opik import configure  # type: ignore
-        configure()
-    except Exception:
-        pass
 
 
 def _now_utc() -> datetime:
@@ -96,7 +89,6 @@ def main() -> None:
     parser.add_argument("--compact", action="store_true")
     args = parser.parse_args()
 
-    _configure_opik_if_available()
     ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
 
     run_id = str(uuid.uuid4())
@@ -139,9 +131,9 @@ def main() -> None:
         f"{'outcome':<9}  {'deny_reason':<16}  {'scope':<12}  expires_at"
     )
     _hr()
-    for i, (d, r) in enumerate(zip(
-        [base, authorized, destructive, authorized], results
-    ), 1):
+    for i, (d, r) in enumerate(
+        zip([base, authorized, destructive, authorized], results), 1
+    ):
         print(_attempt_row(i, d, r))
     _hr()
 
