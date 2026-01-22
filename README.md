@@ -58,6 +58,8 @@ Proposal
    Trace        Trace
 ```
 
+This boundary is enforced synchronously at the commit point; no downstream process can override it.
+
 ---
 
 ## Release Status
