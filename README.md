@@ -8,6 +8,54 @@ It is not intent filtering.
 It is not prompt hygiene.
 It is an **execution boundary**.
 
+## Why this is different
+
+Most AI safety and governance systems operate before or after execution:
+- intent filtering
+- prompt analysis
+- policy scoring
+- post-hoc review
+- logs, traces, and dashboards
+
+Authority Before Execution enforces governance at the only irreversible moment:
+execution time.
+
+If authority is not present, valid, and in scope at the moment of execution,
+the action does not happen.
+
+Not warned.
+Not flagged.
+Not reviewed later.
+
+Blocked.
+
+---
+
+## Execution-time authority boundary
+
+User intent
+  ↓
+Agent reasoning
+  ↓
+Proposal
+  ↓
++-----------------------------+
+| Authority Gate              |
+| (execution boundary)        |
+|                             |
+| - authority present?        |
+| - scope valid?              |
+| - not expired?              |
++-------------+---------------+
+              |
+        +-----+-----+
+        |           |
+     PERMIT       BLOCK
+        |           |
+   Execute      No state change
+   Artifact     Artifact
+   Trace        Trace
+
 ---
 
 ## Release Status
@@ -18,7 +66,7 @@ It is an **execution boundary**.
 - Execution behavior is frozen (non-breaking changes only)
 - Demo video will show the execution boundary in action
 
-This version exists to be **run, inspected, and verified**.
+This version exists to be run, inspected, and verified by judges.
 
 ---
 
@@ -161,6 +209,8 @@ If authority is:
 
 The state transition is **blocked**, deterministically, every time.
 
+This is governance that cannot be bypassed by reasoning, intent, or omission. Only explicit authority at execution time permits action.
+
 ## Repository layout (minimal by design)
 
 - `core/`
@@ -175,3 +225,16 @@ The state transition is **blocked**, deterministically, every time.
 ---
 
 **Judges first. Enforcement proven. Evidence included.**
+
+## Who this is for
+
+This system is for teams running autonomous or semi-autonomous systems
+where execution cannot rely on intent, warnings, or post-hoc review.
+
+- Platform teams operating agentic systems in production
+- Security teams enforcing change control without human bottlenecks
+- Infrastructure teams eliminating approval queues and escalations
+- Enterprises that require fail-closed execution guarantees
+
+Authority Before Execution does not replace human judgment.
+It prevents invalid work from ever reaching humans in the first place.
