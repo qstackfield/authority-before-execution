@@ -33,6 +33,7 @@ Blocked.
 
 ## Execution-time authority boundary
 
+```text
 User intent
   ↓
 Agent reasoning
@@ -55,6 +56,7 @@ Proposal
    Execute      No state change
    Artifact     Artifact
    Trace        Trace
+```
 
 ---
 
