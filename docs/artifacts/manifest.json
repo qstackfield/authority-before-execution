@@ -1,9 +1,0 @@
-{
-  "files": [
-    "curated/01-expired-authority.json",
-    "curated/02-missing-authority.json",
-    "curated/03-scope-violation.json",
-    "curated/04-valid-authority.json",
-    "curated/05-variance-example.json"
-  ]
-}
