@@ -96,9 +96,11 @@ A runnable productivity proof demonstrates this effect:
 
 ### Example outcome (default run)
 
+The demo generates 100 synthetic actions and gives 27% of them valid authority (`--valid-rate`, default `0.27`). The other 73 carry no authority, and all 73 are blocked at execution time. The 73 is set by that input. It is not a measurement of any real workload, and changing `--valid-rate` changes it.
+
 - 100 attempted actions
-- 73 blocked at execution time
-- 73% of potential human decisions eliminated
+- 27 with valid authority, permitted
+- 73 without authority, blocked
 
 Each blocked action represents:
 
